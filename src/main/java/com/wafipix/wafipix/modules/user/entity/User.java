@@ -3,13 +3,18 @@ package com.wafipix.wafipix.modules.user.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.wafipix.wafipix.common.entity.Auditable;
+import com.wafipix.wafipix.modules.user.enums.AuthProvider;
+import com.wafipix.wafipix.modules.user.enums.UserRole;
+
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * User entity for JWT service compatibility
@@ -18,15 +23,12 @@ import java.util.UUID;
 @Entity
 @Table(name = "users", 
        uniqueConstraints = @UniqueConstraint(columnNames = "email"))
-@Data
+@Setter
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+public class User extends Auditable {
     
     @Column(nullable = false, unique = true)
     private String email;
@@ -40,32 +42,39 @@ public class User {
     @Column(length = 20)
     private String phone;
     
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AuthProvider authProvider;
+    
     @Column(length = 255)
     private String password; // Only for CUSTOM auth provider
     
     @Column(length = 255)
     private String providerId; // OAuth2 provider user ID
     
-    @Column(length = 50)
-    private String role; // User role (ADMIN, USER, etc.)
-    
     @Builder.Default
     @Column(nullable = false)
     private Boolean isActive = true;
     
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-    
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-    
-    private LocalDateTime lastLoginAt;
-    
     // Helper methods
     public String getFullName() {
         return firstName + " " + lastName;
+    }
+    
+    public boolean isCustomer() {
+        return UserRole.CUSTOMER.equals(role);
+    }
+    
+    public boolean isEmployee() {
+        return role == UserRole.SUPPORT || role == UserRole.DESIGNER;
+    }
+    
+    public boolean isAdmin() {
+        return UserRole.ADMIN.equals(role);
     }
     
     public boolean hasPassword() {

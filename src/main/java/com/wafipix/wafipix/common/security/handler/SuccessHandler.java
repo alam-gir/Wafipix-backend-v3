@@ -6,6 +6,7 @@ import com.wafipix.wafipix.common.security.enums.TOKEN_TYPE;
 import com.wafipix.wafipix.common.security.service.CookieService;
 import com.wafipix.wafipix.common.security.service.impl.JWTServiceImpl;
 import com.wafipix.wafipix.modules.user.entity.User;
+import com.wafipix.wafipix.modules.user.enums.AuthProvider;
 import com.wafipix.wafipix.modules.user.mapper.UserMapper;
 import com.wafipix.wafipix.modules.user.repository.UserRepository;
 
@@ -112,16 +113,40 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
      * Find existing user or create new one from OAuth2 data
      */
     private User findOrCreateUser(OAuth2User oauth2User, String email) {
-        // Note: This method needs to be adapted based on actual UserRepository methods
-        // For now, we'll use a placeholder that maintains the original functionality
         return userRepository.findByEmailIgnoreCase(email)
                 .orElseGet(() -> {
                     log.info("Creating new user for email: {}", email);
+                    
+                    // Extract OAuth data
                     String name = oauth2User.getAttribute("name");
                     String picture = oauth2User.getAttribute("picture");
-                    User newUser = userMapper.toEntity(name, email, picture, "ADMIN");
+                    AuthProvider authProvider = determineAuthProvider(oauth2User);
+                    
+                    // Create user using mapper
+                    User newUser = userMapper.toEntity(name, email, picture, "CUSTOMER", authProvider);
+                    
+                    log.info("Created new user: {} with provider: {}", email, authProvider);
                     return userRepository.save(newUser);
                 });
+    }
+    
+    /**
+     * Determine OAuth provider from user attributes
+     */
+    private AuthProvider determineAuthProvider(OAuth2User oauth2User) {
+        // Google provides 'sub' attribute
+        if (oauth2User.getAttribute("sub") != null) {
+            return AuthProvider.GOOGLE;
+        }
+        
+        // Facebook provides numeric 'id' (not email)
+        String id = oauth2User.getAttribute("id");
+        if (id != null && !id.contains("@")) {
+            return AuthProvider.FACEBOOK;
+        }
+        
+        // Default to Google
+        return AuthProvider.GOOGLE;
     }
 
     /**

@@ -145,7 +145,7 @@ public class JWTServiceImpl implements JWTService {
     public String generateAccessToken(User user) {
         try {
             log.debug("Generating access token for user: {}", user.getEmail());
-            return generateToken(user.getEmail(), user.getRole(), ACCESS_TOKEN_EXPIRATION);
+            return generateToken(user.getEmail(), user.getRole().name(), ACCESS_TOKEN_EXPIRATION);
         } catch (Exception e) {
             log.error("Error generating access token for user: {} - {}", user.getEmail(), e.getMessage());
             throw new BusinessException("Failed to generate access token: " + e.getMessage());
@@ -156,7 +156,7 @@ public class JWTServiceImpl implements JWTService {
     public String generateRefreshToken(User user) {
         try {
             log.debug("Generating refresh token for user: {}", user.getEmail());
-            return generateToken(user.getEmail(), user.getRole(), REFRESH_TOKEN_EXPIRATION);
+            return generateToken(user.getEmail(), user.getRole().name(), REFRESH_TOKEN_EXPIRATION);
         } catch (Exception e) {
             log.error("Error generating refresh token for user: {} - {}", user.getEmail(), e.getMessage());
             throw new BusinessException("Failed to generate refresh token: " + e.getMessage());
