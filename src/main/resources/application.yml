@@ -56,3 +56,12 @@
 
   api:
     BASE_URL: http://localhost:8080
+
+  cloudflare:
+    r2:
+      endpoint: https://9cda468137d1fd4eb0b930ade6113b21.r2.cloudflarestorage.com
+      access-key: 9de01edaf9b524ecb903307c466a9e43
+      secret-key: 0f5dcf35afbb8d962ae8b97bc8a705c729d95145517d3540aee29e292f51cc46
+      bucket-name: wafipix
+      region: auto
+      public-url: https://pub-df8554bc8acd468e9312f01236ca95f5.r2.dev
