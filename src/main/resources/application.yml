@@ -1,0 +1,58 @@
+  spring:
+    application:
+      name: wafipix
+    datasource:
+      url: jdbc:postgresql://localhost:5432/wafipix
+      driver-class-name: org.postgresql.Driver
+      username: postgres
+      password: admin
+    jpa:
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+      hibernate:
+        ddl-auto: create-drop
+      show-sql: true
+    servlet:
+      multipart:
+        max-file-size: 10MB
+        max-request-size: 10MB
+    security:
+      oauth2:
+        client:
+          registration:
+            google:
+              client-id: 323341037163-k0e5fa261jg00ak74qsmrooiegd1qunh.apps.googleusercontent.com
+              client-secret: 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
+              authorization-grant-type: authorization_code
+              scope:
+                - profile
+                - email
+    mail:
+      host: smtp.gmail.com
+      port: 587
+      username: info.alamgirhussain@gmail.com
+      password: wxzp pjrg srmt dzbu
+      protocol: smtp
+      properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+              required: true
+
+  server:
+    port: 8080
+
+  contact:
+    notify:
+      email: info@wafipix.com
+
+  jwt:
+    SECRET: Sk9Gxfr8hkSbPx7TXONQJsEff4XXAmWGas5WGq8LMtX5KNXg3CQ4XpdvEIXPXL3j3vPDVsP5NAsNWK+tsjx7lw==
+    ACCESS_TOKEN_EXPIRATION: 3000000
+    REFRESH_TOKEN_EXPIRATION: 86400000
+
+  api:
+    BASE_URL: http://localhost:8080
