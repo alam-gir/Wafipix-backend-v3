@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.wafipix.wafipix.common.dto.ApiResponse;
 import com.wafipix.wafipix.common.dto.FieldError;
@@ -71,6 +72,22 @@ public class GlobalExceptionHandler {
         return ResponseUtil.forbidden(ex.getMessage());
     }
     
+    // Static resource not found (browser requests like favicon.ico, .well-known, etc.)
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNoResourceFoundException(
+            NoResourceFoundException ex, WebRequest request) {
+        
+        String resourcePath = ex.getResourcePath();
+        
+        // Log only for non-browser requests (avoid spam)
+        if (!isBrowserResource(resourcePath)) {
+            log.debug("Static resource not found: {}", resourcePath);
+        }
+        
+        // Return 404 for missing static resources
+        return ResponseUtil.notFound("Resource not found");
+    }
+    
     // Generic exception handler
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGenericException(
@@ -79,5 +96,17 @@ public class GlobalExceptionHandler {
         log.error("Unexpected error occurred", ex);
         
         return ResponseUtil.internalError("An unexpected error occurred");
+    }
+    
+    /**
+     * Check if the resource path is a common browser request that we can ignore
+     */
+    private boolean isBrowserResource(String resourcePath) {
+        if (resourcePath == null) return false;
+        
+        return resourcePath.equals("/favicon.ico") ||
+               resourcePath.startsWith("/.well-known/") ||
+               resourcePath.equals("/robots.txt") ||
+               resourcePath.equals("/sitemap.xml");
     }
 }

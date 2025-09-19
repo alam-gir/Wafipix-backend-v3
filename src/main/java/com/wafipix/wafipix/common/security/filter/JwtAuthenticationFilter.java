@@ -1,5 +1,6 @@
 package com.wafipix.wafipix.common.security.filter;
 
+import com.wafipix.wafipix.common.AppConstants;
 import com.wafipix.wafipix.common.exception.AuthenticationException;
 import com.wafipix.wafipix.common.exception.AuthorizationException;
 import com.wafipix.wafipix.common.exception.BusinessException;
@@ -43,6 +44,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NotNull HttpServletResponse response,
             @NotNull FilterChain filterChain) throws ServletException, IOException {
 
+        // Double-check: Skip processing for public endpoints
+        if (shouldNotFilter(request)) {
+            log.debug("JWT Filter - Skipping public endpoint: {}", request.getRequestURI());
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+
         try {
             final String authHeader = request.getHeader("Authorization");
             String token = null;
@@ -75,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Only authenticate if username is valid and no existing authentication
             if (username != null && contextHolder == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                
+
                 // Validate token
                 if (jwtService.validateToken(token)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -150,25 +159,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     public boolean shouldNotFilter(@NotNull HttpServletRequest request) {
-        // Skip JWT filter for public endpoints that don't require authentication
         String requestURI = request.getRequestURI();
         
-        // Skip for OAuth2 endpoints
-        if (requestURI.startsWith("/v3/oauth2")) {
-            return true;
-        }
-        
-        // Skip for authentication endpoints
-        if (requestURI.startsWith("/v3/auth")) {
-            return true;
-        }
-        
-        // Skip for public API endpoints (if any)
-        if (requestURI.startsWith("/v3/public")) {
-            return true;
-        }
-        
-        return false;
+        // Skip JWT filter for public endpoints that don't require authentication
+        return AppConstants.PUBLIC_ENDPOINTS.stream()
+                .anyMatch(endpoint -> {
+                    if (endpoint.endsWith("/**")) {
+                        // Handle wildcard patterns like "/v3/auth/**"
+                        String basePath = endpoint.substring(0, endpoint.length() - 3);
+                        return requestURI.startsWith(basePath);
+                    } else {
+                        // Handle exact matches like "/demo"
+                        return requestURI.equals(endpoint);
+                    }
+                });
     }
 
 }

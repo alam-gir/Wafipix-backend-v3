@@ -25,7 +25,7 @@ public class CategoryControllerAdmin {
     private final CategoryService categoryService;
     
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
         log.info("Admin creating category with title: {}", request.getTitle());
         
@@ -36,7 +36,7 @@ public class CategoryControllerAdmin {
     }
     
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategories() {
         log.info("Admin fetching all categories");
         

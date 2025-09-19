@@ -201,7 +201,7 @@ public class JWTServiceImpl implements JWTService {
                     .success(false)
                     .message(message)
                     .statusCode(status.value())
-                    .timestamp(java.time.LocalDateTime.now())
+                    .timestamp(java.time.LocalDateTime.now().toString())
                     .path(request.getRequestURI())
                     .build();
 

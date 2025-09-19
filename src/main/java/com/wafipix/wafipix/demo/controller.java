@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/demo")
 public class controller {
     @GetMapping
     String home () {
-        return System.getProperty("user.home");
+        return "Demo Api Called";
     }
 }

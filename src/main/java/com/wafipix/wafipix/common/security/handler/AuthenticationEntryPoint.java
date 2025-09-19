@@ -28,12 +28,12 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
                 // Use the exception and status code from request attributes
                 httpStatus = HttpStatus.valueOf(Integer.parseInt(statusCode.toString()));
                 errorMessage = exception.toString();
-                log.warn("Authentication failed: {} - {}", httpStatus, errorMessage);
+                log.warn("Authentication failed for URI '{}': {} - {}", request.getRequestURI(), httpStatus, errorMessage);
             } else {
                 // Fallback to default authentication error
                 httpStatus = HttpStatus.UNAUTHORIZED;
                 errorMessage = authException != null ? authException.getMessage() : "Authentication required";
-                log.warn("Authentication failed with default error: {}", errorMessage);
+                log.warn("Authentication failed for URI '{}' with default error: {}", request.getRequestURI(), errorMessage);
             }
 
             // Create standardized error response using our ResponseUtil
@@ -41,7 +41,7 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
                     .success(false)
                     .message(errorMessage)
                     .statusCode(httpStatus.value())
-                    .timestamp(java.time.LocalDateTime.now())
+                    .timestamp(java.time.LocalDateTime.now().toString())
                     .path(request.getRequestURI())
                     .build();
 
@@ -60,7 +60,7 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
                     .success(false)
                     .message("Authentication failed")
                     .statusCode(HttpStatus.UNAUTHORIZED.value())
-                    .timestamp(java.time.LocalDateTime.now())
+                    .timestamp(java.time.LocalDateTime.now().toString())
                     .build();
 
             ObjectMapper objectMapper = new ObjectMapper();

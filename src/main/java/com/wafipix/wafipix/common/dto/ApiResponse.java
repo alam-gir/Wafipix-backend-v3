@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -19,7 +18,7 @@ public class ApiResponse<T> {
     private boolean success;
     private String message;
     private T data;
-    private LocalDateTime timestamp;
+    private String timestamp;
     private String path;
     private Integer statusCode;
     private List<FieldError> errors;
@@ -30,7 +29,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .success(true)
                 .data(data)
-                .timestamp(LocalDateTime.now())
+                .timestamp(java.time.LocalDateTime.now().toString())
                 .build();
     }
     
@@ -39,7 +38,7 @@ public class ApiResponse<T> {
                 .success(true)
                 .message(message)
                 .data(data)
-                .timestamp(LocalDateTime.now())
+                .timestamp(java.time.LocalDateTime.now().toString())
                 .build();
     }
     
@@ -49,7 +48,7 @@ public class ApiResponse<T> {
                 .message(message)
                 .data(data)
                 .pagination(pagination)
-                .timestamp(LocalDateTime.now())
+                .timestamp(java.time.LocalDateTime.now().toString())
                 .build();
     }
     
@@ -59,7 +58,7 @@ public class ApiResponse<T> {
                 .success(false)
                 .message(message)
                 .statusCode(statusCode)
-                .timestamp(LocalDateTime.now())
+                .timestamp(java.time.LocalDateTime.now().toString())
                 .build();
     }
     
@@ -69,7 +68,7 @@ public class ApiResponse<T> {
                 .message(message)
                 .statusCode(statusCode)
                 .errors(errors)
-                .timestamp(LocalDateTime.now())
+                .timestamp(java.time.LocalDateTime.now().toString())
                 .build();
     }
 }
