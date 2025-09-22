@@ -1,32 +1,20 @@
 package com.wafipix.wafipix.modules.service.mapper;
 
-import com.wafipix.wafipix.common.util.SlugUtil;
+import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceResponse;
 import com.wafipix.wafipix.modules.service.dto.admin.request.CreateServiceRequest;
 import com.wafipix.wafipix.modules.service.dto.admin.request.UpdateServiceRequest;
-import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceResponse;
 import com.wafipix.wafipix.modules.service.entity.Category;
 import com.wafipix.wafipix.modules.service.entity.Service;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ServiceMapper {
-    
-    public Service toEntity(CreateServiceRequest request, Category category, String iconUrl) {
-        return Service.builder()
-                .title(request.getTitle())
-                .slug(SlugUtil.generateSlug(request.getTitle()))
-                .subtitle(request.getSubtitle())
-                .description(request.getDescription())
-                .icon(iconUrl)
-                .category(category)
-                .active(true)
-                .build();
-    }
-    
+
     public ServiceResponse toResponse(Service service) {
+        if (service == null) return null;
+
         return new ServiceResponse(
                 service.getId(),
                 service.getTitle(),
@@ -34,8 +22,8 @@ public class ServiceMapper {
                 service.getSubtitle(),
                 service.getDescription(),
                 service.getIcon(),
-                service.getCategory().getId(),
-                service.getCategory().getTitle(),
+                service.getCategory() != null ? service.getCategory().getId() : null,
+                service.getCategory() != null ? service.getCategory().getTitle() : null,
                 service.getActive(),
                 service.getCreatedAt(),
                 service.getUpdatedAt(),
@@ -43,18 +31,32 @@ public class ServiceMapper {
                 service.getUpdatedBy()
         );
     }
-    
+
     public List<ServiceResponse> toResponseList(List<Service> services) {
+        if (services == null) return List.of();
         return services.stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
-    
+
+    public Service toEntity(CreateServiceRequest request, Category category, String iconUrl) {
+        if (request == null) return null;
+
+        return Service.builder()
+                .title(request.getTitle())
+                .subtitle(request.getSubtitle())
+                .description(request.getDescription())
+                .icon(iconUrl)
+                .category(category)
+                .active(true)
+                .build();
+    }
+
     public void updateEntity(Service service, UpdateServiceRequest request, Category category, String iconUrl) {
+        if (service == null || request == null) return;
+
         if (request.getTitle() != null && !request.getTitle().trim().isEmpty()) {
             service.setTitle(request.getTitle());
-            // Regenerate slug if title changed
-            service.setSlug(SlugUtil.generateSlug(request.getTitle()));
         }
         
         if (request.getSubtitle() != null) {
