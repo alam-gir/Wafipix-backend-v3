@@ -7,6 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.wafipix.wafipix.common.dto.ApiResponse;
@@ -86,6 +88,31 @@ public class GlobalExceptionHandler {
         
         // Return 404 for missing static resources
         return ResponseUtil.notFound("Resource not found");
+    }
+    
+    // File size limit exceeded
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException ex, WebRequest request) {
+        
+        log.warn("File size limit exceeded: {}", ex.getMessage());
+        
+        return ResponseUtil.badRequest("File size exceeds the maximum allowed limit of 200MB");
+    }
+    
+    // Multipart file upload exceptions
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMultipartException(
+            MultipartException ex, WebRequest request) {
+        
+        log.warn("Multipart file upload error: {}", ex.getMessage());
+        
+        // Check if it's a size limit issue
+        if (ex.getMessage() != null && ex.getMessage().contains("size")) {
+            return ResponseUtil.badRequest("File size exceeds the maximum allowed limit of 10MB");
+        }
+        
+        return ResponseUtil.badRequest("File upload error: " + ex.getMessage());
     }
     
     // Generic exception handler
