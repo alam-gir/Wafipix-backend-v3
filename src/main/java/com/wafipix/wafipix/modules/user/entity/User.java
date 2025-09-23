@@ -7,14 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import com.wafipix.wafipix.common.entity.Auditable;
 import com.wafipix.wafipix.modules.user.enums.AuthProvider;
 import com.wafipix.wafipix.modules.user.enums.UserRole;
-
-import java.time.LocalDateTime;
 
 /**
  * User entity for JWT service compatibility

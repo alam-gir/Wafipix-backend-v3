@@ -262,18 +262,6 @@ public class WorkServiceImpl implements WorkService {
         }
     }
 
-    private void cleanupFile(File file) {
-        if (file != null && file.getPublicUrl() != null) {
-            try {
-                fileService.deleteFileByUrl(file.getPublicUrl());
-                log.info("File deleted successfully: {}", file.getPublicUrl());
-            } catch (Exception e) {
-                log.error("Error deleting file {}: {}", file.getPublicUrl(), e.getMessage());
-                // Continue with deletion even if file cleanup fails
-            }
-        }
-    }
-
     private void cleanupFileByUrl(String fileUrl) {
         if (fileUrl != null && !fileUrl.trim().isEmpty()) {
             try {
