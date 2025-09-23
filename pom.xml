@@ -93,6 +93,12 @@
 			<version>3.4.4</version>
 		</dependency>
 
+		<!--		THYMELEAF for email templates	-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
 		<!--		AWS SDK for Cloudflare R2 (S3-compatible)	-->
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>

@@ -32,7 +32,7 @@
       host: smtp.gmail.com
       port: 587
       username: info.alamgirhussain@gmail.com
-      password: wxzp pjrg srmt dzbu
+      password: emsw whgk tifz wmrm
       protocol: smtp
       properties:
         mail:
@@ -41,6 +41,11 @@
             starttls:
               enable: true
               required: true
+            ssl:
+              trust: smtp.gmail.com
+            connectiontimeout: 5000
+            timeout: 3000
+            writetimeout: 5000
 
   server:
     port: 8080
@@ -48,6 +53,8 @@
   contact:
     notify:
       email: info@wafipix.com
+    admin:
+      url: http://localhost:3000/admin
 
   jwt:
     SECRET: Sk9Gxfr8hkSbPx7TXONQJsEff4XXAmWGas5WGq8LMtX5KNXg3CQ4XpdvEIXPXL3j3vPDVsP5NAsNWK+tsjx7lw==
