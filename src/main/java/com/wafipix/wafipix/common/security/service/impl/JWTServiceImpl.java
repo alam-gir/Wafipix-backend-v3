@@ -108,7 +108,7 @@ public class JWTServiceImpl implements JWTService {
                 return generateTokens(user, deviceId);
             } else {
                 log.warn("Invalid refresh token for user: {} with device: {}", user.getEmail(), deviceId);
-                throw new AuthorizationException("Invalid refresh token");
+                throw new AuthorizationException("Refresh token expired or invalid. Please login again.");
             }
         } catch (AuthorizationException e) {
             throw e;

@@ -12,6 +12,8 @@ import com.wafipix.wafipix.common.security.service.CookieService;
 import com.wafipix.wafipix.common.security.service.JWTService;
 import com.wafipix.wafipix.modules.user.entity.User;
 import com.wafipix.wafipix.modules.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +38,12 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenMapper refreshTokenMapper;
 
     @Override
-    public ResponseEntity<?> refreshToken(HttpServletResponse response, String refreshToken, String deviceId) {
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response, String deviceId) {
         try {
             log.info("Processing refresh token request for device: {}", deviceId);
+            
+            // Extract refresh token from cookies
+            String refreshToken = extractRefreshTokenFromCookies(request);
             
             // Validate input parameters
             validateRefreshTokenRequest(refreshToken, deviceId);
@@ -46,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
             // Validate the refresh token
             if (!jwtService.validateToken(refreshToken)) {
                 log.warn("Invalid refresh token for device: {}", deviceId);
-                throw new AuthorizationException("Invalid refresh token");
+                throw new AuthorizationException("Refresh token expired or invalid. Please login again.");
             }
 
             // Extract username from token
@@ -138,6 +143,31 @@ public class AuthServiceImpl implements AuthService {
             log.error("Unexpected error during logout: {}", e.getMessage(), e);
             throw new BusinessException("Failed to logout: " + e.getMessage());
         }
+    }
+
+    /**
+     * Extracts refresh token from HTTP cookies
+     * 
+     * @param request HTTP request containing cookies
+     * @return Refresh token string
+     * @throws BusinessException if refresh token cookie is not found
+     */
+    private String extractRefreshTokenFromCookies(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("rt".equals(cookie.getName())) {
+                    String refreshToken = cookie.getValue();
+                    if (refreshToken != null && !refreshToken.trim().isEmpty()) {
+                        log.debug("Successfully extracted refresh token from cookies");
+                        return refreshToken;
+                    }
+                }
+            }
+        }
+        
+        log.warn("Refresh token cookie 'rt' not found in request");
+        throw new AuthorizationException("Refresh token cookie not found. Please login again.");
     }
 
     /**

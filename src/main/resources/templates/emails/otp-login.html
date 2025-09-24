@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Wafipix Login Code</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: #ffffff;
+            margin: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .content {
+            padding: 32px 24px;
+        }
+        .otp-container {
+            background-color: #f8f9fa;
+            border: 2px dashed #e9ecef;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            margin: 24px 0;
+        }
+        .otp-code {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+            letter-spacing: 8px;
+            margin: 0;
+            font-family: 'Courier New', monospace;
+        }
+        .otp-label {
+            color: #6c757d;
+            font-size: 14px;
+            margin: 8px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box p {
+            margin: 0;
+            color: #495057;
+            font-size: 14px;
+        }
+        .security-note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 24px 0;
+        }
+        .security-note p {
+            margin: 0;
+            color: #856404;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 24px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .brand {
+            color: #667eea;
+            font-weight: 600;
+        }
+        .expiry {
+            color: #dc3545;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Wafipix</h1>
+            <p>Your secure login code</p>
+        </div>
+        
+        <div class="content">
+            <p>Hello,</p>
+            
+            <p>You requested a login code for your <span class="brand">Wafipix</span> account. Use the code below to complete your login:</p>
+            
+            <div class="otp-container">
+                <p class="otp-code" th:text="${otpCode}">123456</p>
+                <p class="otp-label">Verification Code</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>⏱️ This code expires in <span class="expiry" th:text="${expirationMinutes}">10</span> minutes</strong></p>
+                <p>Enter this code on the login page to access your account.</p>
+            </div>
+            
+            <div class="security-note">
+                <p><strong>🔒 Security Notice:</strong> Never share this code with anyone. Wafipix will never ask for your verification code via email, phone, or any other method.</p>
+            </div>
+            
+            <p>If you didn't request this code, please ignore this email or contact our support team if you have concerns.</p>
+            
+            <p>Best regards,<br>
+            <strong>The Wafipix Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message from <span class="brand">Wafipix</span></p>
+            <p>If you have any questions, please contact our support team.</p>
+        </div>
+    </div>
+</body>
+</html>

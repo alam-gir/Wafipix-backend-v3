@@ -10,6 +10,8 @@ public class AppConstants {
     public static final List<String> PUBLIC_ENDPOINTS = List.of(
         "/demo",
         "/v3/auth/**",
+        "/v3/admin/auth/send-otp",  // Admin OTP send endpoint
+        "/v3/admin/auth/verify-otp", // Admin OTP verify endpoint
         "/v3/oauth2/**",
         "/v3/public/**",
         // Browser and static resources

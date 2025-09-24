@@ -71,10 +71,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
 
-            // If no token found, continue to next filter
+            // If no access token found, check if refresh token exists to determine proper status code
             if (token == null) {
-                filterChain.doFilter(request, response);
-                return;
+                boolean hasRefreshToken = hasRefreshTokenCookie(request);
+                if (hasRefreshToken) {
+                    // User has refresh token but no access token - token expired (401)
+                    log.warn("No access token found but refresh token exists - token expired");
+                    jwtService.handleException(
+                            request,
+                            response,
+                            "Access token expired. Please refresh your token.",
+                            HttpStatus.UNAUTHORIZED
+                    );
+                    return;
+                } else {
+                    // No tokens at all - user logged out (403)
+                    log.warn("No authentication tokens found - user logged out");
+                    jwtService.handleException(
+                            request,
+                            response,
+                            "Authentication required. Please login.",
+                            HttpStatus.FORBIDDEN
+                    );
+                    return;
+                }
             }
 
             // Process token
@@ -92,25 +112,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    throw new AuthenticationException("Invalid or expired token");
+                    // Token invalid - check if refresh token exists
+                    boolean hasRefreshToken = hasRefreshTokenCookie(request);
+                    if (hasRefreshToken) {
+                        log.warn("Invalid access token but refresh token exists - token expired");
+                        jwtService.handleException(
+                                request,
+                                response,
+                                "Access token expired. Please refresh your token.",
+                                HttpStatus.UNAUTHORIZED
+                        );
+                        return;
+                    } else {
+                        log.warn("Invalid access token and no refresh token - user logged out");
+                        jwtService.handleException(
+                                request,
+                                response,
+                                "Authentication required. Please login.",
+                                HttpStatus.FORBIDDEN
+                        );
+                        return;
+                    }
                 }
             }
             
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
             log.error("JWT token expired: {}", e.getMessage());
-            jwtService.handleException(
-                    request,
-                    response,
-                    "Token expired",
-                    HttpStatus.UNAUTHORIZED
-            );
+            // Check if refresh token exists to determine proper status code
+            boolean hasRefreshToken = hasRefreshTokenCookie(request);
+            HttpStatus status = hasRefreshToken ? HttpStatus.UNAUTHORIZED : HttpStatus.FORBIDDEN;
+            String message = hasRefreshToken ? 
+                "Access token expired. Please refresh your token." : 
+                "Authentication required. Please login.";
+            
+            jwtService.handleException(request, response, message, status);
         } catch (MalformedJwtException | JwtException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
             jwtService.handleException(
                     request,
                     response,
-                    "Invalid token",
+                    "Invalid token format",
                     HttpStatus.FORBIDDEN
             );
         } catch (UsernameNotFoundException e) {
@@ -155,6 +197,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             );
         }
 
+    }
+
+    /**
+     * Check if request has refresh token cookie
+     * 
+     * @param request HTTP request
+     * @return true if refresh token cookie exists, false otherwise
+     */
+    private boolean hasRefreshTokenCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("rt".equals(cookie.getName()) && 
+                    cookie.getValue() != null && 
+                    !cookie.getValue().trim().isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
