@@ -3,6 +3,7 @@ package com.wafipix.wafipix.modules.socialmedia.service;
 import com.wafipix.wafipix.modules.socialmedia.dto.request.CreateSocialMediaRequest;
 import com.wafipix.wafipix.modules.socialmedia.dto.request.UpdateSocialMediaRequest;
 import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaListResponse;
+import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaPublicResponse;
 import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +18,5 @@ public interface SocialMediaService {
     SocialMediaResponse getSocialMediaById(UUID id);
     SocialMediaResponse updateSocialMedia(UUID id, UpdateSocialMediaRequest request);
     void deleteSocialMedia(UUID id);
+    List<SocialMediaPublicResponse> getPublicSocialMedia();
 }

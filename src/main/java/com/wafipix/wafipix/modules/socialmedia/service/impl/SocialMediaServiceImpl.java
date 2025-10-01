@@ -4,6 +4,7 @@ import com.wafipix.wafipix.common.exception.ResourceNotFoundException;
 import com.wafipix.wafipix.modules.socialmedia.dto.request.CreateSocialMediaRequest;
 import com.wafipix.wafipix.modules.socialmedia.dto.request.UpdateSocialMediaRequest;
 import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaListResponse;
+import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaPublicResponse;
 import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaResponse;
 import com.wafipix.wafipix.modules.socialmedia.entity.SocialMedia;
 import com.wafipix.wafipix.modules.socialmedia.mapper.SocialMediaMapper;
@@ -96,5 +97,15 @@ public class SocialMediaServiceImpl implements SocialMediaService {
         socialMediaRepository.delete(socialMedia);
 
         log.info("Social media deleted successfully with ID: {}", id);
+    }
+
+    @Override
+    public List<SocialMediaPublicResponse> getPublicSocialMedia() {
+        log.info("Fetching social media for public display");
+
+        List<SocialMedia> socialMediaList = socialMediaRepository.findAllOrdered();
+        log.info("Found {} social media for public display", socialMediaList.size());
+
+        return socialMediaMapper.toPublicResponseList(socialMediaList);
     }
 }

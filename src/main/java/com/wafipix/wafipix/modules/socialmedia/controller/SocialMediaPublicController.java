@@ -1,7 +1,7 @@
 package com.wafipix.wafipix.modules.socialmedia.controller;
 
 import com.wafipix.wafipix.common.dto.ApiResponse;
-import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaResponse;
+import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaPublicResponse;
 import com.wafipix.wafipix.modules.socialmedia.service.SocialMediaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +20,9 @@ public class SocialMediaPublicController {
     private final SocialMediaService socialMediaService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<SocialMediaResponse>>> getAllSocialMedia() {
+    public ResponseEntity<ApiResponse<List<SocialMediaPublicResponse>>> getAllSocialMedia() {
         log.info("Fetching all social media for public display");
-        List<SocialMediaResponse> response = socialMediaService.getAllSocialMedia();
+        List<SocialMediaPublicResponse> response = socialMediaService.getPublicSocialMedia();
         return new ResponseEntity<>(ApiResponse.success(response), HttpStatus.OK);
     }
 }

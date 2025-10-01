@@ -3,6 +3,7 @@ package com.wafipix.wafipix.modules.socialmedia.mapper;
 import com.wafipix.wafipix.modules.socialmedia.dto.request.CreateSocialMediaRequest;
 import com.wafipix.wafipix.modules.socialmedia.dto.request.UpdateSocialMediaRequest;
 import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaListResponse;
+import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaPublicResponse;
 import com.wafipix.wafipix.modules.socialmedia.dto.response.SocialMediaResponse;
 import com.wafipix.wafipix.modules.socialmedia.entity.SocialMedia;
 import org.springframework.stereotype.Component;
@@ -49,6 +50,22 @@ public class SocialMediaMapper {
         if (socialMediaList == null) return List.of();
         return socialMediaList.stream()
                 .map(this::toListResponse)
+                .toList();
+    }
+
+    public SocialMediaPublicResponse toPublicResponse(SocialMedia socialMedia) {
+        if (socialMedia == null) return null;
+
+        return new SocialMediaPublicResponse(
+                socialMedia.getTitle(),
+                socialMedia.getUrl()
+        );
+    }
+
+    public List<SocialMediaPublicResponse> toPublicResponseList(List<SocialMedia> socialMediaList) {
+        if (socialMediaList == null) return List.of();
+        return socialMediaList.stream()
+                .map(this::toPublicResponse)
                 .toList();
     }
 
