@@ -78,4 +78,12 @@ public interface ServiceRepository extends JpaRepository<Service, UUID> {
     @Modifying
     @Query("DELETE FROM Feature f WHERE f.packageEntity.id = :packageId")
     void deleteAllFeaturesByPackageId(@Param("packageId") UUID packageId);
+
+    // Get service features ordered by creation time
+    @Query("SELECT sf FROM ServiceFeature sf WHERE sf.service.id = :serviceId ORDER BY sf.createdAt ASC")
+    List<ServiceFeature> findServiceFeaturesOrderedByCreation(@Param("serviceId") UUID serviceId);
+
+    // Get service FAQs ordered by creation time
+    @Query("SELECT f FROM FAQ f WHERE f.service.id = :serviceId ORDER BY f.createdAt ASC")
+    List<FAQ> findServiceFaqsOrderedByCreation(@Param("serviceId") UUID serviceId);
 }

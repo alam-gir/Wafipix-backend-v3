@@ -31,6 +31,7 @@ import com.wafipix.wafipix.modules.service.entity.Service;
 import com.wafipix.wafipix.modules.service.entity.ServiceFeature;
 import com.wafipix.wafipix.modules.service.mapper.ServiceMapper;
 import com.wafipix.wafipix.modules.service.repository.CategoryRepository;
+import com.wafipix.wafipix.modules.service.repository.PackageRepository;
 import com.wafipix.wafipix.modules.service.repository.ServiceRepository;
 import com.wafipix.wafipix.modules.service.service.ServiceService;
 import lombok.RequiredArgsConstructor;
@@ -43,11 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -58,6 +55,7 @@ public class ServiceServiceImpl implements ServiceService {
     
     private final ServiceRepository serviceRepository;
     private final CategoryRepository categoryRepository;
+    private final PackageRepository packageRepository;
     private final ServiceMapper serviceMapper;
     private final FileService fileService;
     
@@ -455,8 +453,9 @@ public class ServiceServiceImpl implements ServiceService {
         Service service = serviceRepository.findBySlugAndActiveTrue(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Active service not found with slug: " + slug));
         
-        // Map packages
-        List<ServicePackageResponse> packageResponses = service.getPackages().stream()
+        // Map packages - use repository method to get packages in creation order
+        List<com.wafipix.wafipix.modules.service.entity.Package> orderedPackages = packageRepository.findActivePackagesByServiceId(service.getId());
+        List<ServicePackageResponse> packageResponses = orderedPackages.stream()
                 .map(pkg -> new ServicePackageResponse(
                         pkg.getId(),
                         pkg.getTitle(),
@@ -467,7 +466,7 @@ public class ServiceServiceImpl implements ServiceService {
                         ),
                         pkg.getFeatures().stream()
                                 .map(feature -> new PackageFeatureResponse(
-                                        UUID.randomUUID(), // Generate ID for features
+                                        feature.getId(), // Use actual feature ID
                                         feature.getText(),
                                         feature.getHighlight()
                                 ))
@@ -479,30 +478,26 @@ public class ServiceServiceImpl implements ServiceService {
                 ))
                 .collect(Collectors.toList());
         
-        // Map features - access lazy collection within transaction
-        List<ServiceFeaturePublicResponse> featureResponses = new ArrayList<>();
-        if (service.getFeatures() != null) {
-            featureResponses = service.getFeatures().stream()
-                    .map(feature -> new ServiceFeaturePublicResponse(
-                            feature.getId(), // Use actual feature ID
-                            feature.getText(),
-                            "", // Description not available in entity
-                            "" // Icon not available in entity
-                    ))
-                    .collect(Collectors.toList());
-        }
+        // Map features - use repository method to get features in creation order
+        List<ServiceFeature> orderedFeatures = serviceRepository.findServiceFeaturesOrderedByCreation(service.getId());
+        List<ServiceFeaturePublicResponse> featureResponses = orderedFeatures.stream()
+                .map(feature -> new ServiceFeaturePublicResponse(
+                        feature.getId(), // Use actual feature ID
+                        feature.getText(),
+                        "", // Description not available in entity
+                        "" // Icon not available in entity
+                ))
+                .collect(Collectors.toList());
         
-        // Map FAQs - access lazy collection within transaction
-        List<ServiceFaqsPublicResponse> faqResponses = new ArrayList<>();
-        if (service.getFaqs() != null) {
-            faqResponses = service.getFaqs().stream()
-                    .map(faq -> new ServiceFaqsPublicResponse(
-                            faq.getId(), // Use actual FAQ ID
-                            faq.getQuestion(),
-                            faq.getAnswer()
-                    ))
-                    .collect(Collectors.toList());
-        }
+        // Map FAQs - use repository method to get FAQs in creation order
+        List<FAQ> orderedFaqs = serviceRepository.findServiceFaqsOrderedByCreation(service.getId());
+        List<ServiceFaqsPublicResponse> faqResponses = orderedFaqs.stream()
+                .map(faq -> new ServiceFaqsPublicResponse(
+                        faq.getId(), // Use actual FAQ ID
+                        faq.getQuestion(),
+                        faq.getAnswer()
+                ))
+                .collect(Collectors.toList());
         
         return new ServicePageDataResponse(
                 service.getId(),
@@ -519,36 +514,33 @@ public class ServiceServiceImpl implements ServiceService {
     public List<ServicePackageResponse> getAllPublicServicePackages() {
         log.info("Fetching all active service packages for public display");
         
-        List<Service> activeServices = serviceRepository.findActiveServices();
-        List<ServicePackageResponse> allPackages = new ArrayList<>();
+        // Get all active packages across all services, ordered by creation time
+        List<com.wafipix.wafipix.modules.service.entity.Package> allOrderedPackages = packageRepository.findAllActivePackagesOrdered();
         
-        for (Service service : activeServices) {
-            List<ServicePackageResponse> servicePackages = service.getPackages().stream()
-                    .map(pkg -> new ServicePackageResponse(
-                            pkg.getId(),
-                            pkg.getTitle(),
-                            pkg.getSubtitle(),
-                            new PackagePricingResponse(
-                                    pkg.getPricing().getUsd(),
-                                    pkg.getPricing().getBdt()
-                            ),
-                            pkg.getFeatures().stream()
-                                    .map(feature -> new PackageFeatureResponse(
-                                            UUID.randomUUID(),
-                                            feature.getText(),
-                                            feature.getHighlight()
-                                    ))
-                                    .collect(Collectors.toList()),
-                            pkg.getStatus().name().toLowerCase(),
-                            pkg.getDeliveryTime(),
-                            pkg.getAdvancePercentage() != null ? pkg.getAdvancePercentage() + "% advance" : "Full payment",
-                            pkg.getPopular()
-                    ))
-                    .collect(Collectors.toList());
-            allPackages.addAll(servicePackages);
-        }
+        List<ServicePackageResponse> allPackages = allOrderedPackages.stream()
+                .map(pkg -> new ServicePackageResponse(
+                        pkg.getId(),
+                        pkg.getTitle(),
+                        pkg.getSubtitle(),
+                        new PackagePricingResponse(
+                                pkg.getPricing().getUsd(),
+                                pkg.getPricing().getBdt()
+                        ),
+                        pkg.getFeatures().stream()
+                                .map(feature -> new PackageFeatureResponse(
+                                        feature.getId(), // Use actual feature ID
+                                        feature.getText(),
+                                        feature.getHighlight()
+                                ))
+                                .collect(Collectors.toList()),
+                        pkg.getStatus().name().toLowerCase(),
+                        pkg.getDeliveryTime(),
+                        pkg.getAdvancePercentage() != null ? pkg.getAdvancePercentage() + "% advance" : "Full payment",
+                        pkg.getPopular()
+                ))
+                .collect(Collectors.toList());
         
-        log.info("Found {} total packages from {} active services", allPackages.size(), activeServices.size());
+        log.info("Found {} total packages ordered by creation time", allPackages.size());
         return allPackages;
     }
     

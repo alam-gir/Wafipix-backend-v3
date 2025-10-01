@@ -28,4 +28,8 @@ public interface PackageRepository extends JpaRepository<Package, UUID> {
     // Public APIs - only active packages
     @Query("SELECT p FROM Package p LEFT JOIN FETCH p.service WHERE p.service.id = :serviceId AND p.status IN ('ACTIVE', 'FEATURED') ORDER BY p.createdAt ASC")
     List<Package> findActivePackagesByServiceId(@Param("serviceId") UUID serviceId);
+    
+    // Get all active packages across all services, ordered by creation time
+    @Query("SELECT p FROM Package p LEFT JOIN FETCH p.service WHERE p.status IN ('ACTIVE', 'FEATURED') ORDER BY p.createdAt ASC")
+    List<Package> findAllActivePackagesOrdered();
 }
