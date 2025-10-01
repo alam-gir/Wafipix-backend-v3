@@ -5,6 +5,7 @@ import com.wafipix.wafipix.modules.contact.dto.request.ContactFormRequest;
 import com.wafipix.wafipix.modules.contact.dto.request.ContactReplyRequest;
 import com.wafipix.wafipix.modules.contact.dto.response.ContactListResponse;
 import com.wafipix.wafipix.modules.contact.dto.response.ContactResponse;
+import com.wafipix.wafipix.modules.contact.dto.response.ContactResponsePublic;
 import com.wafipix.wafipix.modules.contact.entity.Contact;
 import com.wafipix.wafipix.modules.contact.entity.ContactReply;
 import com.wafipix.wafipix.modules.contact.mapper.ContactMapper;
@@ -62,6 +63,28 @@ public class ContactServiceImpl implements ContactService {
 
         log.info("Contact form submitted successfully with ID: {}", savedContact.getId());
         return contactMapper.toResponse(savedContact);
+    }
+
+    @Override
+    @Transactional
+    public ContactResponsePublic submitPublicContactForm(ContactFormRequest request) {
+        log.info("Submitting public contact form from: {}", request.getEmail());
+
+        // Create contact entity
+        Contact contact = contactMapper.toEntity(request);
+        // Set audit fields for public contact form
+        contact.setCreatedBy("public-contact-form");
+        contact.setUpdatedBy("public-contact-form");
+        Contact savedContact = contactRepository.save(contact);
+
+        // Send notification email to admin
+        sendAdminNotification(savedContact);
+
+        // Send confirmation email to visitor
+        sendVisitorConfirmation(savedContact);
+
+        log.info("Public contact form submitted successfully with ID: {}", savedContact.getId());
+        return contactMapper.toPublicResponse(savedContact);
     }
 
     @Override

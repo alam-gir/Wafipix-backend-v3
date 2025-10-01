@@ -5,6 +5,7 @@ import com.wafipix.wafipix.modules.contact.dto.request.ContactReplyRequest;
 import com.wafipix.wafipix.modules.contact.dto.response.ContactListResponse;
 import com.wafipix.wafipix.modules.contact.dto.response.ContactReplyResponse;
 import com.wafipix.wafipix.modules.contact.dto.response.ContactResponse;
+import com.wafipix.wafipix.modules.contact.dto.response.ContactResponsePublic;
 import com.wafipix.wafipix.modules.contact.entity.Contact;
 import com.wafipix.wafipix.modules.contact.entity.ContactReply;
 import org.springframework.stereotype.Component;
@@ -101,5 +102,18 @@ public class ContactMapper {
                 .message(request.getMessage())
                 .repliedBy(repliedBy)
                 .build();
+    }
+
+    // Public API mapping method
+    public ContactResponsePublic toPublicResponse(Contact contact) {
+        if (contact == null) return null;
+
+        return new ContactResponsePublic(
+                contact.getId(),
+                contact.getFullName(),
+                contact.getEmail(),
+                contact.getPhone(),
+                contact.getMessage()
+        );
     }
 }
