@@ -7,13 +7,18 @@ import com.wafipix.wafipix.modules.service.dto.admin.response.PackageResponse;
 import com.wafipix.wafipix.modules.service.entity.Feature;
 import com.wafipix.wafipix.modules.service.entity.Package;
 import com.wafipix.wafipix.modules.service.entity.Service;
+import com.wafipix.wafipix.modules.service.repository.ServiceRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class PackageMapper {
+    
+    private final ServiceRepository serviceRepository;
     
     public Package toEntity(CreatePackageRequest request, Service service) {
         Package packageEntity = Package.builder()
@@ -92,11 +97,10 @@ public class PackageMapper {
         }
         
         if (request.getFeatures() != null) {
-            // Clear existing features and add new ones
-            if (packageEntity.getFeatures() != null) {
-                packageEntity.getFeatures().clear();
-            }
+            // EXPLICITLY DELETE all existing features from database first
+            serviceRepository.deleteAllFeaturesByPackageId(packageEntity.getId());
             
+            // Create new features from request
             List<Feature> features = request.getFeatures().stream()
                     .map(featureRequest -> Feature.builder()
                             .packageEntity(packageEntity)

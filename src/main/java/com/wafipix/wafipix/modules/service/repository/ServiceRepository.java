@@ -74,4 +74,8 @@ public interface ServiceRepository extends JpaRepository<Service, UUID> {
     @Modifying
     @Query("DELETE FROM FAQ f WHERE f.service.id = :serviceId")
     void deleteAllFaqsByServiceId(@Param("serviceId") UUID serviceId);
+
+    @Modifying
+    @Query("DELETE FROM Feature f WHERE f.packageEntity.id = :packageId")
+    void deleteAllFeaturesByPackageId(@Param("packageId") UUID packageId);
 }
