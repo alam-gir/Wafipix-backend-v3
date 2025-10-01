@@ -19,4 +19,5 @@ public interface ClientService {
     ClientResponse updateClient(UUID id, UpdateClientRequest request);
     void deleteClient(UUID id);
     ClientResponse updateClientActivityStatus(UUID id, Boolean active);
+    List<String> getActiveClientLogos();
 }

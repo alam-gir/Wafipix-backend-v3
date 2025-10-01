@@ -184,4 +184,18 @@ public class ClientServiceImpl implements ClientService {
         log.info("Client activity status updated for ID: {} to {}", id, active);
         return clientMapper.toResponse(updatedClient);
     }
+
+    @Override
+    public List<String> getActiveClientLogos() {
+        log.info("Fetching active client logos");
+
+        List<Client> activeClients = clientRepository.findActiveClients();
+        List<String> logos = activeClients.stream()
+                .map(Client::getLogo)
+                .filter(logo -> logo != null && !logo.trim().isEmpty())
+                .toList();
+
+        log.info("Found {} active client logos", logos.size());
+        return logos;
+    }
 }
