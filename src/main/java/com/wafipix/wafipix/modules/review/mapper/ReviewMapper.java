@@ -4,6 +4,7 @@ import com.wafipix.wafipix.modules.review.dto.request.CreateReviewRequest;
 import com.wafipix.wafipix.modules.review.dto.request.UpdateReviewRequest;
 import com.wafipix.wafipix.modules.review.dto.response.ReviewListResponse;
 import com.wafipix.wafipix.modules.review.dto.response.ReviewResponse;
+import com.wafipix.wafipix.modules.review.dto.response.ReviewResponsePublic;
 import com.wafipix.wafipix.modules.review.entity.Review;
 import org.springframework.stereotype.Component;
 
@@ -95,5 +96,26 @@ public class ReviewMapper {
         if (reviewImageUrl != null) {
             review.setReviewImage(reviewImageUrl);
         }
+    }
+
+    // Public API mapping methods
+    public ReviewResponsePublic toPublicResponse(Review review) {
+        if (review == null) return null;
+
+        return new ReviewResponsePublic(
+                review.getId(),
+                review.getReviewImage(),
+                review.getPlatform(),
+                review.getClientName(),
+                review.getRating(),
+                review.getReviewText()
+        );
+    }
+
+    public List<ReviewResponsePublic> toPublicResponseList(List<Review> reviews) {
+        if (reviews == null) return List.of();
+        return reviews.stream()
+                .map(this::toPublicResponse)
+                .toList();
     }
 }

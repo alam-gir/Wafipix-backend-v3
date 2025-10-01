@@ -31,10 +31,19 @@ public class ReviewControllerAdmin {
     private final ReviewService reviewService;
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
+    public ResponseEntity<ApiResponse<ReviewResponse>> createReviewWithImage(
             @Valid @ModelAttribute CreateReviewRequest request
     ) {
-        log.info("Creating review for platform: {}", request.getPlatform());
+        log.info("Creating review with image for platform: {}", request.getPlatform());
+        ReviewResponse response = reviewService.createReview(request);
+        return new ResponseEntity<>(ApiResponse.success(response), HttpStatus.CREATED);
+    }
+
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<ApiResponse<ReviewResponse>> createReviewWithoutImage(
+            @Valid @RequestBody CreateReviewRequest request
+    ) {
+        log.info("Creating review without image for platform: {}", request.getPlatform());
         ReviewResponse response = reviewService.createReview(request);
         return new ResponseEntity<>(ApiResponse.success(response), HttpStatus.CREATED);
     }

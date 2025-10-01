@@ -5,6 +5,7 @@ import com.wafipix.wafipix.modules.review.dto.request.CreateReviewRequest;
 import com.wafipix.wafipix.modules.review.dto.request.UpdateReviewRequest;
 import com.wafipix.wafipix.modules.review.dto.response.ReviewListResponse;
 import com.wafipix.wafipix.modules.review.dto.response.ReviewResponse;
+import com.wafipix.wafipix.modules.review.dto.response.ReviewResponsePublic;
 import com.wafipix.wafipix.modules.review.entity.Review;
 import com.wafipix.wafipix.modules.review.mapper.ReviewMapper;
 import com.wafipix.wafipix.modules.review.repository.ReviewRepository;
@@ -34,15 +35,19 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponse createReview(CreateReviewRequest request) {
         log.info("Creating review for platform: {}", request.getPlatform());
 
-        // Upload review image
-        String reviewImageUrl;
-        try {
-            var uploadedFile = fileService.uploadFile(request.getReviewImage(), "reviews/images");
-            reviewImageUrl = uploadedFile.getPublicUrl();
-            log.info("Review image uploaded successfully: {}", reviewImageUrl);
-        } catch (Exception e) {
-            log.error("Failed to upload review image: {}", e.getMessage());
-            throw new RuntimeException("Failed to upload review image: " + e.getMessage());
+        // Upload review image if provided
+        String reviewImageUrl = null;
+        if (request.getReviewImage() != null && !request.getReviewImage().isEmpty()) {
+            try {
+                var uploadedFile = fileService.uploadFile(request.getReviewImage(), "reviews/images");
+                reviewImageUrl = uploadedFile.getPublicUrl();
+                log.info("Review image uploaded successfully: {}", reviewImageUrl);
+            } catch (Exception e) {
+                log.error("Failed to upload review image: {}", e.getMessage());
+                throw new RuntimeException("Failed to upload review image: " + e.getMessage());
+            }
+        } else {
+            log.info("No review image provided, creating review without image");
         }
 
         // Create review entity
@@ -198,5 +203,26 @@ public class ReviewServiceImpl implements ReviewService {
 
         log.info("Review activity status updated for ID: {} to {}", id, active);
         return reviewMapper.toResponse(updatedReview);
+    }
+
+    // Public API implementations
+    @Override
+    public List<ReviewResponsePublic> getPublicActiveReviews() {
+        log.info("Fetching active reviews for public display (shuffled)");
+
+        List<Review> reviews = reviewRepository.findActiveReviewsRandom();
+        log.info("Found {} active reviews for public display", reviews.size());
+
+        return reviewMapper.toPublicResponseList(reviews);
+    }
+
+    @Override
+    public List<ReviewResponsePublic> getPublicActiveReviewsByPlatform(String platform) {
+        log.info("Fetching active reviews for platform: {} for public display", platform);
+
+        List<Review> reviews = reviewRepository.findActiveReviewsByPlatform(platform);
+        log.info("Found {} active reviews for platform: {} for public display", reviews.size(), platform);
+
+        return reviewMapper.toPublicResponseList(reviews);
     }
 }

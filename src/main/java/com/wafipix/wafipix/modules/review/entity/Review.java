@@ -17,7 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Review extends Auditable {
 
-    @Column(nullable = false, length = 500)
+    @Column(length = 500)
     private String reviewImage; // Public URL from file management
 
     @Column(nullable = false, length = 100)

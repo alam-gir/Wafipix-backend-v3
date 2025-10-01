@@ -4,6 +4,7 @@ import com.wafipix.wafipix.modules.review.dto.request.CreateReviewRequest;
 import com.wafipix.wafipix.modules.review.dto.request.UpdateReviewRequest;
 import com.wafipix.wafipix.modules.review.dto.response.ReviewListResponse;
 import com.wafipix.wafipix.modules.review.dto.response.ReviewResponse;
+import com.wafipix.wafipix.modules.review.dto.response.ReviewResponsePublic;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,6 +18,10 @@ public interface ReviewService {
     List<ReviewResponse> getActiveReviews();
     List<ReviewResponse> getActiveReviewsByPlatform(String platform);
     List<String> getActivePlatforms();
+    
+    // Public API methods
+    List<ReviewResponsePublic> getPublicActiveReviews();
+    List<ReviewResponsePublic> getPublicActiveReviewsByPlatform(String platform);
     ReviewResponse getReviewById(UUID id);
     ReviewResponse updateReview(UUID id, UpdateReviewRequest request);
     void deleteReview(UUID id);
