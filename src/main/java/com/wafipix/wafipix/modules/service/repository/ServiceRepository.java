@@ -58,10 +58,10 @@ public interface ServiceRepository extends JpaRepository<Service, UUID> {
     
     
     // Public APIs - only active services
-    @Query("SELECT s FROM Service s LEFT JOIN FETCH s.category WHERE s.active = true")
+    @Query("SELECT s FROM Service s LEFT JOIN FETCH s.category WHERE s.active = true ORDER BY s.createdAt ASC")
     List<Service> findActiveServices();
     
-    @Query("SELECT s FROM Service s LEFT JOIN FETCH s.category WHERE s.active = true AND s.category.id = :categoryId")
+    @Query("SELECT s FROM Service s LEFT JOIN FETCH s.category WHERE s.active = true AND s.category.id = :categoryId ORDER BY s.createdAt ASC")
     List<Service> findActiveServicesByCategory(@Param("categoryId") UUID categoryId);
     
     @Query("SELECT s FROM Service s LEFT JOIN FETCH s.category LEFT JOIN FETCH s.packages WHERE s.slug = :slug AND s.active = true")

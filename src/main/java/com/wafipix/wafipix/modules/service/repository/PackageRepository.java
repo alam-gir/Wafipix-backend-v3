@@ -19,13 +19,13 @@ public interface PackageRepository extends JpaRepository<Package, UUID> {
     @Query("SELECT p FROM Package p LEFT JOIN FETCH p.service WHERE p.id = :id")
     java.util.Optional<Package> findByIdWithService(@Param("id") UUID id);
     
-    @Query("SELECT p FROM Package p LEFT JOIN FETCH p.service WHERE p.service.id = :serviceId")
+    @Query("SELECT p FROM Package p LEFT JOIN FETCH p.service WHERE p.service.id = :serviceId ORDER BY p.createdAt ASC")
     List<Package> findByServiceId(@Param("serviceId") UUID serviceId);
     
-    @Query("SELECT p FROM Package p LEFT JOIN FETCH p.service WHERE p.service.id = :serviceId AND p.status = :status")
+    @Query("SELECT p FROM Package p LEFT JOIN FETCH p.service WHERE p.service.id = :serviceId AND p.status = :status ORDER BY p.createdAt ASC")
     List<Package> findByServiceIdAndStatus(@Param("serviceId") UUID serviceId, @Param("status") com.wafipix.wafipix.modules.service.enums.PackageStatus status);
     
     // Public APIs - only active packages
-    @Query("SELECT p FROM Package p LEFT JOIN FETCH p.service WHERE p.service.id = :serviceId AND p.status IN ('ACTIVE', 'FEATURED')")
+    @Query("SELECT p FROM Package p LEFT JOIN FETCH p.service WHERE p.service.id = :serviceId AND p.status IN ('ACTIVE', 'FEATURED') ORDER BY p.createdAt ASC")
     List<Package> findActivePackagesByServiceId(@Param("serviceId") UUID serviceId);
 }

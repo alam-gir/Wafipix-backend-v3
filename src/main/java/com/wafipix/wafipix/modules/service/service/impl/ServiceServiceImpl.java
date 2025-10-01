@@ -556,7 +556,7 @@ public class ServiceServiceImpl implements ServiceService {
     public List<CategoryPublicResponse> getPublicServiceCategories() {
         log.info("Fetching service categories for public display");
         
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAllOrderedByCreatedAt();
         log.info("Found {} categories", categories.size());
         
         return categories.stream()
@@ -572,7 +572,7 @@ public class ServiceServiceImpl implements ServiceService {
     public List<SubmenuCategoryResponse> getServicesForNavigation() {
         log.info("Fetching services organized by categories for navigation");
         
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAllOrderedByCreatedAt();
         log.info("Found {} categories for navigation", categories.size());
         
         return categories.stream()
