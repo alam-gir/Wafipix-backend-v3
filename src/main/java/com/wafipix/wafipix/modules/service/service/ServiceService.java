@@ -13,6 +13,7 @@ import com.wafipix.wafipix.modules.service.dto.response.CategoryPublicResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePageDataResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePackageResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePublicResponse;
+import com.wafipix.wafipix.modules.service.dto.response.SubmenuCategoryResponse;
 import com.wafipix.wafipix.modules.service.entity.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,4 +63,6 @@ public interface ServiceService {
     List<ServicePackageResponse> getAllPublicServicePackages();
     
     List<CategoryPublicResponse> getPublicServiceCategories();
+    
+    List<SubmenuCategoryResponse> getServicesForNavigation();
 }

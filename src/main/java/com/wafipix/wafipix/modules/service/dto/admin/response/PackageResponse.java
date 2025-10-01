@@ -1,6 +1,5 @@
 package com.wafipix.wafipix.modules.service.dto.admin.response;
 
-import com.wafipix.wafipix.modules.service.entity.Feature;
 import com.wafipix.wafipix.modules.service.entity.Pricing;
 import com.wafipix.wafipix.modules.service.enums.PackageStatus;
 
@@ -15,7 +14,7 @@ public record PackageResponse(
     String title,
     String subtitle,
     Pricing pricing,
-    List<Feature> features,
+    List<FeatureResponse> features,
     PackageStatus status,
     String deliveryTime,
     Double advancePercentage,

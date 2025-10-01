@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/admin/packages")
+@RequestMapping("/v3/admin/packages")
 @RequiredArgsConstructor
 @Slf4j
 public class PackageControllerAdmin {

@@ -7,11 +7,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServiceFAQRequest {
+    
+    private UUID id; // Optional - if present, update existing; if null, create new
     
     @NotBlank(message = "Question is required")
     @Size(max = 500, message = "Question must not exceed 500 characters")

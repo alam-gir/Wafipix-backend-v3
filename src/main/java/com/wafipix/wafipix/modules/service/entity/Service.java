@@ -1,5 +1,6 @@
 package com.wafipix.wafipix.modules.service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wafipix.wafipix.common.entity.Auditable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.List;
 @Table(name = "services")
 @Setter
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Service extends Auditable {
@@ -37,21 +39,22 @@ public class Service extends Auditable {
     
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
+    @JsonIgnore
     private List<Package> packages = new ArrayList<>();
     
-    @ElementCollection
-    @CollectionTable(name = "service_features", joinColumns = @JoinColumn(name = "service_id"))
-    private List<Feature> features;
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ServiceFeature> features;
     
-    @ElementCollection
-    @CollectionTable(name = "service_faqs", joinColumns = @JoinColumn(name = "service_id"))
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<FAQ> faqs;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
     
-    @Builder.Default
     @Column(nullable = false)
+    @Builder.Default
     private Boolean active = true;
 }

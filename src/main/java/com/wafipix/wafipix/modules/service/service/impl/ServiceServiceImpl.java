@@ -5,6 +5,8 @@ import com.wafipix.wafipix.common.exception.ResourceNotFoundException;
 import com.wafipix.wafipix.common.util.SlugUtil;
 import com.wafipix.wafipix.modules.filemanagement.service.FileService;
 import com.wafipix.wafipix.modules.service.dto.admin.request.CreateServiceRequest;
+import com.wafipix.wafipix.modules.service.dto.admin.request.ServiceFAQRequest;
+import com.wafipix.wafipix.modules.service.dto.admin.request.ServiceFeatureRequest;
 import com.wafipix.wafipix.modules.service.dto.admin.request.ServiceSearchRequest;
 import com.wafipix.wafipix.modules.service.dto.admin.request.UpdateServiceFAQsRequest;
 import com.wafipix.wafipix.modules.service.dto.admin.request.UpdateServiceFeaturesRequest;
@@ -21,11 +23,12 @@ import com.wafipix.wafipix.modules.service.dto.response.ServiceFeaturePublicResp
 import com.wafipix.wafipix.modules.service.dto.response.ServicePageDataResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePackageResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePublicResponse;
+import com.wafipix.wafipix.modules.service.dto.response.SubmenuCategoryResponse;
+import com.wafipix.wafipix.modules.service.dto.response.SubmenuItemResponse;
 import com.wafipix.wafipix.modules.service.entity.Category;
 import com.wafipix.wafipix.modules.service.entity.FAQ;
-import com.wafipix.wafipix.modules.service.entity.Feature;
-import com.wafipix.wafipix.modules.service.entity.Package;
 import com.wafipix.wafipix.modules.service.entity.Service;
+import com.wafipix.wafipix.modules.service.entity.ServiceFeature;
 import com.wafipix.wafipix.modules.service.mapper.ServiceMapper;
 import com.wafipix.wafipix.modules.service.repository.CategoryRepository;
 import com.wafipix.wafipix.modules.service.repository.ServiceRepository;
@@ -40,7 +43,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -298,50 +305,19 @@ public class ServiceServiceImpl implements ServiceService {
         Service service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + serviceId));
         
-        List<Feature> features = service.getFeatures();
+        List<ServiceFeature> features = service.getFeatures();
         if (features == null) {
             features = new ArrayList<>();
         }
         
         List<ServiceFeatureResponse> featureResponses = features.stream()
-                .map(feature -> new ServiceFeatureResponse(feature.getText(), feature.getHighlight()))
+                .map(feature -> new ServiceFeatureResponse(feature.getId(), feature.getText(), feature.getHighlight()))
                 .collect(Collectors.toList());
         
         log.info("Found {} features for service: {}", featureResponses.size(), serviceId);
         return featureResponses;
     }
     
-    @Override
-    @Transactional
-    public List<ServiceFeatureResponse> updateServiceFeatures(UpdateServiceFeaturesRequest request) {
-        log.info("Updating features for service: {}", request.getServiceId());
-        
-        Service service = serviceRepository.findById(request.getServiceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + request.getServiceId()));
-        
-        // Convert request features to entity features
-        List<Feature> features = new ArrayList<>();
-        if (request.getFeatures() != null) {
-            features = request.getFeatures().stream()
-                    .map(req -> Feature.builder()
-                            .text(req.getText())
-                            .highlight(req.getHighlight() != null ? req.getHighlight() : false)
-                            .build())
-                    .collect(Collectors.toList());
-        }
-        
-        // Update service features
-        service.setFeatures(features);
-        serviceRepository.save(service);
-        
-        // Convert to response
-        List<ServiceFeatureResponse> featureResponses = features.stream()
-                .map(feature -> new ServiceFeatureResponse(feature.getText(), feature.getHighlight()))
-                .collect(Collectors.toList());
-        
-        log.info("Updated {} features for service: {}", featureResponses.size(), request.getServiceId());
-        return featureResponses;
-    }
     
     @Override
     public List<ServiceFAQResponse> getServiceFAQs(UUID serviceId) {
@@ -356,7 +332,7 @@ public class ServiceServiceImpl implements ServiceService {
         }
         
         List<ServiceFAQResponse> faqResponses = faqs.stream()
-                .map(faq -> new ServiceFAQResponse(faq.getQuestion(), faq.getAnswer()))
+                .map(faq -> new ServiceFAQResponse(faq.getId(), faq.getQuestion(), faq.getAnswer()))
                 .collect(Collectors.toList());
         
         log.info("Found {} FAQs for service: {}", faqResponses.size(), serviceId);
@@ -365,34 +341,86 @@ public class ServiceServiceImpl implements ServiceService {
     
     @Override
     @Transactional
-    public List<ServiceFAQResponse> updateServiceFAQs(UpdateServiceFAQsRequest request) {
-        log.info("Updating FAQs for service: {}", request.getServiceId());
+    public List<ServiceFeatureResponse> updateServiceFeatures(UpdateServiceFeaturesRequest request) {
+        log.info("=== UPDATING SERVICE FEATURES ===");
+        log.info("Service ID: {}", request.getServiceId());
+        log.info("Request features count: {}", request.getFeatures() != null ? request.getFeatures().size() : 0);
         
+        // Step 1: Load the service
         Service service = serviceRepository.findById(request.getServiceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + request.getServiceId()));
         
-        // Convert request FAQs to entity FAQs
-        List<FAQ> faqs = new ArrayList<>();
-        if (request.getFaqs() != null) {
-            faqs = request.getFaqs().stream()
-                    .map(req -> FAQ.builder()
-                            .question(req.getQuestion())
-                            .answer(req.getAnswer())
-                            .build())
-                    .collect(Collectors.toList());
+        // Step 2: EXPLICITLY DELETE all existing features from database
+        log.info("Deleting all existing features from database");
+        serviceRepository.deleteAllFeaturesByServiceId(request.getServiceId());
+        
+        // Step 3: Create new features from request
+        List<ServiceFeature> newFeatures = new ArrayList<>();
+        if (request.getFeatures() != null) {
+            for (ServiceFeatureRequest req : request.getFeatures()) {
+                ServiceFeature feature = ServiceFeature.builder()
+                        .service(service)
+                        .text(req.getText())
+                        .highlight(req.getHighlight() != null ? req.getHighlight() : false)
+                        .build();
+                newFeatures.add(feature);
+                log.info("Created feature: {}", req.getText());
+            }
         }
         
-        // Update service FAQs
-        service.setFaqs(faqs);
+        // Step 4: Set the new features and save
+        service.setFeatures(newFeatures);
         serviceRepository.save(service);
         
-        // Convert to response
-        List<ServiceFAQResponse> faqResponses = faqs.stream()
-                .map(faq -> new ServiceFAQResponse(faq.getQuestion(), faq.getAnswer()))
+        // Step 5: Return response
+        List<ServiceFeatureResponse> responses = newFeatures.stream()
+                .map(f -> new ServiceFeatureResponse(f.getId(), f.getText(), f.getHighlight()))
                 .collect(Collectors.toList());
         
-        log.info("Updated {} FAQs for service: {}", faqResponses.size(), request.getServiceId());
-        return faqResponses;
+        log.info("=== FINAL RESULT: {} features ===", responses.size());
+        return responses;
+    }
+    
+    @Override
+    @Transactional
+    public List<ServiceFAQResponse> updateServiceFAQs(UpdateServiceFAQsRequest request) {
+        log.info("=== UPDATING SERVICE FAQs ===");
+        log.info("Service ID: {}", request.getServiceId());
+        log.info("Request FAQs count: {}", request.getFaqs() != null ? request.getFaqs().size() : 0);
+        
+        // Step 1: Load the service
+        Service service = serviceRepository.findById(request.getServiceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + request.getServiceId()));
+        
+        // Step 2: EXPLICITLY DELETE all existing FAQs from database
+        log.info("Deleting all existing FAQs from database");
+        serviceRepository.deleteAllFaqsByServiceId(request.getServiceId());
+        
+        // Step 3: Create new FAQs from request
+        List<FAQ> newFaqs = new ArrayList<>();
+        if (request.getFaqs() != null) {
+            for (ServiceFAQRequest req : request.getFaqs()) {
+                FAQ faq = FAQ.builder()
+                        .service(service)
+                        .question(req.getQuestion())
+                        .answer(req.getAnswer())
+                        .build();
+                newFaqs.add(faq);
+                log.info("Created FAQ: {}", req.getQuestion());
+            }
+        }
+        
+        // Step 4: Set the new FAQs and save
+        service.setFaqs(newFaqs);
+        serviceRepository.save(service);
+        
+        // Step 5: Return response
+        List<ServiceFAQResponse> responses = newFaqs.stream()
+                .map(f -> new ServiceFAQResponse(f.getId(), f.getQuestion(), f.getAnswer()))
+                .collect(Collectors.toList());
+        
+        log.info("=== FINAL RESULT: {} FAQs ===", responses.size());
+        return responses;
     }
     
     @Override
@@ -456,7 +484,7 @@ public class ServiceServiceImpl implements ServiceService {
         if (service.getFeatures() != null) {
             featureResponses = service.getFeatures().stream()
                     .map(feature -> new ServiceFeaturePublicResponse(
-                            UUID.randomUUID(), // Generate ID for features
+                            feature.getId(), // Use actual feature ID
                             feature.getText(),
                             "", // Description not available in entity
                             "" // Icon not available in entity
@@ -469,7 +497,7 @@ public class ServiceServiceImpl implements ServiceService {
         if (service.getFaqs() != null) {
             faqResponses = service.getFaqs().stream()
                     .map(faq -> new ServiceFaqsPublicResponse(
-                            UUID.randomUUID(), // Generate ID for FAQs
+                            faq.getId(), // Use actual FAQ ID
                             faq.getQuestion(),
                             faq.getAnswer()
                     ))
@@ -537,6 +565,35 @@ public class ServiceServiceImpl implements ServiceService {
                         category.getTitle(),
                         category.getSubtitle()
                 ))
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<SubmenuCategoryResponse> getServicesForNavigation() {
+        log.info("Fetching services organized by categories for navigation");
+        
+        List<Category> categories = categoryRepository.findAll();
+        log.info("Found {} categories for navigation", categories.size());
+        
+        return categories.stream()
+                .map(category -> {
+                    // Get active services for this category
+                    List<SubmenuItemResponse> serviceItems = category.getServices().stream()
+                            .filter(Service::getActive) // Only active services
+                            .map(service -> new SubmenuItemResponse(
+                                    service.getId(),
+                                    service.getTitle(),
+                                    service.getSlug()
+                            ))
+                            .collect(Collectors.toList());
+                    
+                    return new SubmenuCategoryResponse(
+                            category.getId(),
+                            category.getTitle(),
+                            serviceItems
+                    );
+                })
+                .filter(category -> !category.items().isEmpty()) // Only include categories with active services
                 .collect(Collectors.toList());
     }
 }

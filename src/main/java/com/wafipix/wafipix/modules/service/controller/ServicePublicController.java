@@ -1,13 +1,12 @@
 package com.wafipix.wafipix.modules.service.controller;
 
 import com.wafipix.wafipix.common.dto.ApiResponse;
-import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceFAQResponse;
-import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceFeatureResponse;
-import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceResponse;
+
 import com.wafipix.wafipix.modules.service.dto.response.CategoryPublicResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePageDataResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePackageResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePublicResponse;
+import com.wafipix.wafipix.modules.service.dto.response.SubmenuCategoryResponse;
 import com.wafipix.wafipix.modules.service.service.ServiceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/v3/public/services")
@@ -59,5 +57,14 @@ public class ServicePublicController {
         List<CategoryPublicResponse> categories = serviceService.getPublicServiceCategories();
         
         return ResponseEntity.ok(ApiResponse.success(categories, "Service categories retrieved successfully"));
+    }
+    
+    @GetMapping("/navigation")
+    public ResponseEntity<ApiResponse<List<SubmenuCategoryResponse>>> getServicesForNavigation() {
+        log.info("Public request for services organized by categories for navigation");
+        
+        List<SubmenuCategoryResponse> navigationData = serviceService.getServicesForNavigation();
+        
+        return ResponseEntity.ok(ApiResponse.success(navigationData, "Services for navigation retrieved successfully"));
     }
 }

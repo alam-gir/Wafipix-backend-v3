@@ -2,7 +2,9 @@ package com.wafipix.wafipix.modules.service.mapper;
 
 import com.wafipix.wafipix.modules.service.dto.admin.request.CreatePackageRequest;
 import com.wafipix.wafipix.modules.service.dto.admin.request.UpdatePackageRequest;
+import com.wafipix.wafipix.modules.service.dto.admin.response.FeatureResponse;
 import com.wafipix.wafipix.modules.service.dto.admin.response.PackageResponse;
+import com.wafipix.wafipix.modules.service.entity.Feature;
 import com.wafipix.wafipix.modules.service.entity.Package;
 import com.wafipix.wafipix.modules.service.entity.Service;
 import org.springframework.stereotype.Component;
@@ -14,20 +16,43 @@ import java.util.stream.Collectors;
 public class PackageMapper {
     
     public Package toEntity(CreatePackageRequest request, Service service) {
-        return Package.builder()
+        Package packageEntity = Package.builder()
                 .service(service)
                 .title(request.getTitle())
                 .subtitle(request.getSubtitle())
                 .pricing(request.getPricing())
-                .features(request.getFeatures())
                 .status(request.getStatus())
                 .deliveryTime(request.getDeliveryTime())
                 .advancePercentage(request.getAdvancePercentage())
                 .popular(request.getPopular() != null ? request.getPopular() : false)
                 .build();
+        
+        // Create Feature entities with package reference
+        if (request.getFeatures() != null) {
+            List<Feature> features = request.getFeatures().stream()
+                    .map(featureRequest -> Feature.builder()
+                            .packageEntity(packageEntity)
+                            .text(featureRequest.getText())
+                            .highlight(featureRequest.getHighlight() != null ? featureRequest.getHighlight() : false)
+                            .build())
+                    .collect(Collectors.toList());
+            packageEntity.setFeatures(features);
+        }
+        
+        return packageEntity;
     }
     
     public PackageResponse toResponse(Package packageEntity) {
+        List<FeatureResponse> featureResponses = packageEntity.getFeatures() != null 
+            ? packageEntity.getFeatures().stream()
+                .map(feature -> new FeatureResponse(
+                    feature.getId(),
+                    feature.getText(),
+                    feature.getHighlight()
+                ))
+                .collect(Collectors.toList())
+            : List.of();
+            
         return new PackageResponse(
                 packageEntity.getId(),
                 packageEntity.getService().getId(),
@@ -35,7 +60,7 @@ public class PackageMapper {
                 packageEntity.getTitle(),
                 packageEntity.getSubtitle(),
                 packageEntity.getPricing(),
-                packageEntity.getFeatures(),
+                featureResponses,
                 packageEntity.getStatus(),
                 packageEntity.getDeliveryTime(),
                 packageEntity.getAdvancePercentage(),
@@ -67,7 +92,19 @@ public class PackageMapper {
         }
         
         if (request.getFeatures() != null) {
-            packageEntity.setFeatures(request.getFeatures());
+            // Clear existing features and add new ones
+            if (packageEntity.getFeatures() != null) {
+                packageEntity.getFeatures().clear();
+            }
+            
+            List<Feature> features = request.getFeatures().stream()
+                    .map(featureRequest -> Feature.builder()
+                            .packageEntity(packageEntity)
+                            .text(featureRequest.getText())
+                            .highlight(featureRequest.getHighlight() != null ? featureRequest.getHighlight() : false)
+                            .build())
+                    .collect(Collectors.toList());
+            packageEntity.setFeatures(features);
         }
         
         if (request.getStatus() != null) {

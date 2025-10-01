@@ -1,9 +1,12 @@
 package com.wafipix.wafipix.modules.service.repository;
 
+import com.wafipix.wafipix.modules.service.entity.FAQ;
 import com.wafipix.wafipix.modules.service.entity.Service;
+import com.wafipix.wafipix.modules.service.entity.ServiceFeature;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -28,6 +31,12 @@ public interface ServiceRepository extends JpaRepository<Service, UUID> {
     
     @Query("SELECT s FROM Service s LEFT JOIN FETCH s.category LEFT JOIN FETCH s.packages WHERE s.id = :id")
     Optional<Service> findByIdWithCategoryAndPackages(@Param("id") UUID id);
+    
+    @Query("SELECT s FROM Service s LEFT JOIN FETCH s.category LEFT JOIN FETCH s.features WHERE s.id = :id")
+    Optional<Service> findByIdWithCategoryAndFeatures(@Param("id") UUID id);
+    
+    @Query("SELECT s FROM Service s LEFT JOIN FETCH s.category LEFT JOIN FETCH s.faqs WHERE s.id = :id")
+    Optional<Service> findByIdWithCategoryAndFaqs(@Param("id") UUID id);
     
     @Query("SELECT s FROM Service s LEFT JOIN FETCH s.category WHERE s.slug = :slug AND s.active = true")
     Optional<Service> findBySlugWithCategory(@Param("slug") String slug);
@@ -57,4 +66,12 @@ public interface ServiceRepository extends JpaRepository<Service, UUID> {
     
     @Query("SELECT s FROM Service s LEFT JOIN FETCH s.category LEFT JOIN FETCH s.packages WHERE s.slug = :slug AND s.active = true")
     Optional<Service> findBySlugAndActiveTrue(@Param("slug") String slug);
+
+    @Modifying
+    @Query("DELETE FROM ServiceFeature sf WHERE sf.service.id = :serviceId")
+    void deleteAllFeaturesByServiceId(@Param("serviceId") UUID serviceId);
+
+    @Modifying
+    @Query("DELETE FROM FAQ f WHERE f.service.id = :serviceId")
+    void deleteAllFaqsByServiceId(@Param("serviceId") UUID serviceId);
 }

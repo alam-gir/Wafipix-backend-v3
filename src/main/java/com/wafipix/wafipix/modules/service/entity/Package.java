@@ -1,5 +1,6 @@
 package com.wafipix.wafipix.modules.service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wafipix.wafipix.common.entity.Auditable;
 import com.wafipix.wafipix.modules.service.enums.PackageStatus;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
@@ -15,7 +17,7 @@ import java.util.List;
 @Table(name = "packages")
 @Setter
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Package extends Auditable {
@@ -33,8 +35,8 @@ public class Package extends Auditable {
     @Embedded
     private Pricing pricing;
     
-    @ElementCollection
-    @CollectionTable(name = "package_features", joinColumns = @JoinColumn(name = "package_id"))
+    @OneToMany(mappedBy = "packageEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Feature> features;
     
     @Enumerated(EnumType.STRING)
@@ -47,7 +49,7 @@ public class Package extends Auditable {
     @Column(name = "advance_percentage")
     private Double advancePercentage;
     
-    @Builder.Default
     @Column(nullable = false)
+    @Builder.Default
     private Boolean popular = false;
 }

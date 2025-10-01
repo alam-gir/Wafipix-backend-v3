@@ -11,18 +11,18 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "package_features")
+@Table(name = "service_features")
 @Setter
 @Getter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Feature extends Auditable {
+public class ServiceFeature extends Auditable {
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "package_id", nullable = false)
+    @JoinColumn(name = "service_id", nullable = false)
     @JsonIgnore
-    private Package packageEntity;
+    private Service service;
     
     @Column(nullable = false, length = 500)
     private String text;
