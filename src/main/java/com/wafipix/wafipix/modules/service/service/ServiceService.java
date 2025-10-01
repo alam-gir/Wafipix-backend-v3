@@ -9,6 +9,10 @@ import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceFAQResponse
 import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceFeatureResponse;
 import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceListResponse;
 import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceResponse;
+import com.wafipix.wafipix.modules.service.dto.response.CategoryPublicResponse;
+import com.wafipix.wafipix.modules.service.dto.response.ServicePageDataResponse;
+import com.wafipix.wafipix.modules.service.dto.response.ServicePackageResponse;
+import com.wafipix.wafipix.modules.service.dto.response.ServicePublicResponse;
 import com.wafipix.wafipix.modules.service.entity.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,4 +53,13 @@ public interface ServiceService {
     List<ServiceFAQResponse> updateServiceFAQs(UpdateServiceFAQsRequest request);
     
     Service getServiceEntityById(UUID id);
+    
+    // New Public APIs
+    List<ServicePublicResponse> getPublicActiveServices();
+    
+    ServicePageDataResponse getPublicServiceBySlug(String slug);
+    
+    List<ServicePackageResponse> getAllPublicServicePackages();
+    
+    List<CategoryPublicResponse> getPublicServiceCategories();
 }

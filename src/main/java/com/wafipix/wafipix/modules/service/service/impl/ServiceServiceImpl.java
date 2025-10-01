@@ -13,9 +13,18 @@ import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceFAQResponse
 import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceFeatureResponse;
 import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceListResponse;
 import com.wafipix.wafipix.modules.service.dto.admin.response.ServiceResponse;
+import com.wafipix.wafipix.modules.service.dto.response.CategoryPublicResponse;
+import com.wafipix.wafipix.modules.service.dto.response.PackageFeatureResponse;
+import com.wafipix.wafipix.modules.service.dto.response.PackagePricingResponse;
+import com.wafipix.wafipix.modules.service.dto.response.ServiceFaqsPublicResponse;
+import com.wafipix.wafipix.modules.service.dto.response.ServiceFeaturePublicResponse;
+import com.wafipix.wafipix.modules.service.dto.response.ServicePageDataResponse;
+import com.wafipix.wafipix.modules.service.dto.response.ServicePackageResponse;
+import com.wafipix.wafipix.modules.service.dto.response.ServicePublicResponse;
 import com.wafipix.wafipix.modules.service.entity.Category;
 import com.wafipix.wafipix.modules.service.entity.FAQ;
 import com.wafipix.wafipix.modules.service.entity.Feature;
+import com.wafipix.wafipix.modules.service.entity.Package;
 import com.wafipix.wafipix.modules.service.entity.Service;
 import com.wafipix.wafipix.modules.service.mapper.ServiceMapper;
 import com.wafipix.wafipix.modules.service.repository.CategoryRepository;
@@ -390,5 +399,144 @@ public class ServiceServiceImpl implements ServiceService {
     public Service getServiceEntityById(UUID id) {
         return serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + id));
+    }
+    
+    // New Public API Implementations
+    @Override
+    public List<ServicePublicResponse> getPublicActiveServices() {
+        log.info("Fetching active services for public display");
+        
+        List<Service> activeServices = serviceRepository.findActiveServices();
+        log.info("Found {} active services", activeServices.size());
+        
+        return activeServices.stream()
+                .map(service -> new ServicePublicResponse(
+                        service.getId(),
+                        service.getSlug(),
+                        service.getTitle(),
+                        service.getSubtitle()
+                ))
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public ServicePageDataResponse getPublicServiceBySlug(String slug) {
+        log.info("Fetching service by slug for public display: {}", slug);
+        
+        Service service = serviceRepository.findBySlugAndActiveTrue(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Active service not found with slug: " + slug));
+        
+        // Map packages
+        List<ServicePackageResponse> packageResponses = service.getPackages().stream()
+                .map(pkg -> new ServicePackageResponse(
+                        pkg.getId(),
+                        pkg.getTitle(),
+                        pkg.getSubtitle(),
+                        new PackagePricingResponse(
+                                pkg.getPricing().getUsd(),
+                                pkg.getPricing().getBdt()
+                        ),
+                        pkg.getFeatures().stream()
+                                .map(feature -> new PackageFeatureResponse(
+                                        UUID.randomUUID(), // Generate ID for features
+                                        feature.getText(),
+                                        feature.getHighlight()
+                                ))
+                                .collect(Collectors.toList()),
+                        pkg.getStatus().name().toLowerCase(),
+                        pkg.getDeliveryTime(),
+                        pkg.getAdvancePercentage() != null ? pkg.getAdvancePercentage() + "% advance" : "Full payment",
+                        pkg.getPopular()
+                ))
+                .collect(Collectors.toList());
+        
+        // Map features - access lazy collection within transaction
+        List<ServiceFeaturePublicResponse> featureResponses = new ArrayList<>();
+        if (service.getFeatures() != null) {
+            featureResponses = service.getFeatures().stream()
+                    .map(feature -> new ServiceFeaturePublicResponse(
+                            UUID.randomUUID(), // Generate ID for features
+                            feature.getText(),
+                            "", // Description not available in entity
+                            "" // Icon not available in entity
+                    ))
+                    .collect(Collectors.toList());
+        }
+        
+        // Map FAQs - access lazy collection within transaction
+        List<ServiceFaqsPublicResponse> faqResponses = new ArrayList<>();
+        if (service.getFaqs() != null) {
+            faqResponses = service.getFaqs().stream()
+                    .map(faq -> new ServiceFaqsPublicResponse(
+                            UUID.randomUUID(), // Generate ID for FAQs
+                            faq.getQuestion(),
+                            faq.getAnswer()
+                    ))
+                    .collect(Collectors.toList());
+        }
+        
+        return new ServicePageDataResponse(
+                service.getId(),
+                service.getSlug(),
+                service.getTitle(),
+                service.getSubtitle(),
+                packageResponses,
+                featureResponses,
+                faqResponses
+        );
+    }
+    
+    @Override
+    public List<ServicePackageResponse> getAllPublicServicePackages() {
+        log.info("Fetching all active service packages for public display");
+        
+        List<Service> activeServices = serviceRepository.findActiveServices();
+        List<ServicePackageResponse> allPackages = new ArrayList<>();
+        
+        for (Service service : activeServices) {
+            List<ServicePackageResponse> servicePackages = service.getPackages().stream()
+                    .map(pkg -> new ServicePackageResponse(
+                            pkg.getId(),
+                            pkg.getTitle(),
+                            pkg.getSubtitle(),
+                            new PackagePricingResponse(
+                                    pkg.getPricing().getUsd(),
+                                    pkg.getPricing().getBdt()
+                            ),
+                            pkg.getFeatures().stream()
+                                    .map(feature -> new PackageFeatureResponse(
+                                            UUID.randomUUID(),
+                                            feature.getText(),
+                                            feature.getHighlight()
+                                    ))
+                                    .collect(Collectors.toList()),
+                            pkg.getStatus().name().toLowerCase(),
+                            pkg.getDeliveryTime(),
+                            pkg.getAdvancePercentage() != null ? pkg.getAdvancePercentage() + "% advance" : "Full payment",
+                            pkg.getPopular()
+                    ))
+                    .collect(Collectors.toList());
+            allPackages.addAll(servicePackages);
+        }
+        
+        log.info("Found {} total packages from {} active services", allPackages.size(), activeServices.size());
+        return allPackages;
+    }
+    
+    @Override
+    public List<CategoryPublicResponse> getPublicServiceCategories() {
+        log.info("Fetching service categories for public display");
+        
+        List<Category> categories = categoryRepository.findAll();
+        log.info("Found {} categories", categories.size());
+        
+        return categories.stream()
+                .map(category -> new CategoryPublicResponse(
+                        category.getId(),
+                        category.getTitle(),
+                        category.getSubtitle()
+                ))
+                .collect(Collectors.toList());
     }
 }
