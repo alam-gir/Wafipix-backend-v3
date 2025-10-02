@@ -14,9 +14,6 @@ import java.util.UUID;
 public interface ContactService {
     ContactResponse submitContactForm(ContactFormRequest request);
     
-    // Public API method
-    ContactResponsePublic submitPublicContactForm(ContactFormRequest request);
-    
     List<ContactResponse> getAllContacts();
     Page<ContactListResponse> getAllContacts(Pageable pageable);
     ContactResponse getContactById(UUID id, String readBy);

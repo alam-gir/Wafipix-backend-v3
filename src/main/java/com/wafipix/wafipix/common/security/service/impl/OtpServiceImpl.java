@@ -3,17 +3,16 @@ package com.wafipix.wafipix.common.security.service.impl;
 import com.wafipix.wafipix.common.exception.BusinessException;
 import com.wafipix.wafipix.common.security.entity.OtpCode;
 import com.wafipix.wafipix.common.security.repository.OtpCodeRepository;
-import com.wafipix.wafipix.modules.email.service.EmailService;
+import com.wafipix.wafipix.common.security.event.OtpEmailSentEvent;
 import com.wafipix.wafipix.common.security.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -23,7 +22,7 @@ import java.util.Random;
 public class OtpServiceImpl implements OtpService {
     
     private final OtpCodeRepository otpCodeRepository;
-    private final EmailService emailService;
+    private final ApplicationEventPublisher eventPublisher;
     
     @Value("${otp.expiration-minutes:10}")
     private int otpExpirationMinutes;
@@ -69,16 +68,11 @@ public class OtpServiceImpl implements OtpService {
             // Save OTP
             otpCodeRepository.save(otp);
             
-            // Send OTP via email
-            boolean emailSent = sendOtpEmail(email, otpCode);
+            // Publish event for asynchronous email sending
+            eventPublisher.publishEvent(new OtpEmailSentEvent(this, email, otpCode, otpExpirationMinutes));
             
-            if (emailSent) {
-                log.info("OTP generated and sent successfully for email: {}", email);
-                return true;
-            } else {
-                log.error("Failed to send OTP email for: {}", email);
-                throw new BusinessException("Failed to send OTP email");
-            }
+            log.info("OTP generated successfully for email: {} - Email will be sent asynchronously", email);
+            return true;
             
         } catch (BusinessException e) {
             throw e;
@@ -186,25 +180,6 @@ public class OtpServiceImpl implements OtpService {
      */
     private String generateSixDigitOtp() {
         return String.format("%06d", random.nextInt(1000000));
-    }
-    
-    /**
-     * Send OTP email using template
-     */
-    private boolean sendOtpEmail(String email, String otpCode) {
-        try {
-            Map<String, Object> templateVariables = new HashMap<>();
-            templateVariables.put("otpCode", otpCode);
-            templateVariables.put("expirationMinutes", otpExpirationMinutes);
-            templateVariables.put("email", email);
-            
-            String subject = "Your Wafipix Login Code";
-            
-            return emailService.sendTemplateEmail(email, subject, "otp-login", templateVariables);
-        } catch (Exception e) {
-            log.error("Error sending OTP email to {}: {}", email, e.getMessage());
-            return false;
-        }
     }
     
     /**

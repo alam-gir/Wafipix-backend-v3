@@ -8,6 +8,8 @@ import com.wafipix.wafipix.modules.contact.dto.response.ContactResponse;
 import com.wafipix.wafipix.modules.contact.dto.response.ContactResponsePublic;
 import com.wafipix.wafipix.modules.contact.entity.Contact;
 import com.wafipix.wafipix.modules.contact.entity.ContactReply;
+import com.wafipix.wafipix.modules.contact.event.ContactFormSubmittedEvent;
+import com.wafipix.wafipix.modules.contact.event.ContactReplySentEvent;
 import com.wafipix.wafipix.modules.contact.mapper.ContactMapper;
 import com.wafipix.wafipix.modules.contact.repository.ContactReplyRepository;
 import com.wafipix.wafipix.modules.contact.repository.ContactRepository;
@@ -17,6 +19,7 @@ import com.wafipix.wafipix.modules.email.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,7 @@ public class ContactServiceImpl implements ContactService {
     private final ContactReplyRepository contactReplyRepository;
     private final ContactMapper contactMapper;
     private final EmailService emailService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${contact.notify.email}")
     private String notifyEmail;
@@ -55,36 +59,11 @@ public class ContactServiceImpl implements ContactService {
         contact.setUpdatedBy("public-contact-form");
         Contact savedContact = contactRepository.save(contact);
 
-        // Send notification email to admin
-        sendAdminNotification(savedContact);
+        // Publish event for asynchronous email sending
+        eventPublisher.publishEvent(new ContactFormSubmittedEvent(this, savedContact));
 
-        // Send confirmation email to visitor
-        sendVisitorConfirmation(savedContact);
-
-        log.info("Contact form submitted successfully with ID: {}", savedContact.getId());
+        log.info("Contact form submitted successfully with ID: {} - Emails will be sent asynchronously", savedContact.getId());
         return contactMapper.toResponse(savedContact);
-    }
-
-    @Override
-    @Transactional
-    public ContactResponsePublic submitPublicContactForm(ContactFormRequest request) {
-        log.info("Submitting public contact form from: {}", request.getEmail());
-
-        // Create contact entity
-        Contact contact = contactMapper.toEntity(request);
-        // Set audit fields for public contact form
-        contact.setCreatedBy("public-contact-form");
-        contact.setUpdatedBy("public-contact-form");
-        Contact savedContact = contactRepository.save(contact);
-
-        // Send notification email to admin
-        sendAdminNotification(savedContact);
-
-        // Send confirmation email to visitor
-        sendVisitorConfirmation(savedContact);
-
-        log.info("Public contact form submitted successfully with ID: {}", savedContact.getId());
-        return contactMapper.toPublicResponse(savedContact);
     }
 
     @Override
@@ -143,10 +122,10 @@ public class ContactServiceImpl implements ContactService {
         contact.setStatus("replied");
         contactRepository.save(contact);
 
-        // Send reply email to visitor
-        sendReplyToVisitor(contact, savedReply);
+        // Publish event for asynchronous reply email sending
+        eventPublisher.publishEvent(new ContactReplySentEvent(this, contact, savedReply));
 
-        log.info("Reply sent successfully for contact ID: {}", contactId);
+        log.info("Reply sent successfully for contact ID: {} - Email will be sent asynchronously", contactId);
         return contactMapper.toResponse(contact);
     }
 
@@ -165,80 +144,5 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public long getUnreadContactCount() {
         return contactRepository.countUnreadContacts();
-    }
-
-    private void sendAdminNotification(Contact contact) {
-        try {
-            Map<String, Object> variables = new HashMap<>();
-            variables.put("contactId", contact.getId());
-            variables.put("fullName", contact.getFullName());
-            variables.put("email", contact.getEmail());
-            variables.put("phone", contact.getPhone());
-            variables.put("message", contact.getMessage());
-            variables.put("adminUrl", adminUrl);
-
-            boolean sent = emailService.sendTemplateEmail(
-                    notifyEmail,
-                    "New Contact Form Submission - " + contact.getFullName(),
-                    "contact-notification",
-                    variables
-            );
-
-            if (sent) {
-                log.info("Admin notification sent for contact ID: {}", contact.getId());
-            } else {
-                log.error("Failed to send admin notification for contact ID: {}", contact.getId());
-            }
-        } catch (Exception e) {
-            log.error("Error sending admin notification: {}", e.getMessage());
-        }
-    }
-
-    private void sendVisitorConfirmation(Contact contact) {
-        try {
-            Map<String, Object> variables = new HashMap<>();
-            variables.put("fullName", contact.getFullName());
-            variables.put("message", contact.getMessage());
-
-            boolean sent = emailService.sendTemplateEmail(
-                    contact.getEmail(),
-                    "Thank you for contacting us - Wafipix",
-                    "contact-confirmation",
-                    variables
-            );
-
-            if (sent) {
-                log.info("Confirmation email sent to: {}", contact.getEmail());
-            } else {
-                log.error("Failed to send confirmation email to: {}", contact.getEmail());
-            }
-        } catch (Exception e) {
-            log.error("Error sending confirmation email: {}", e.getMessage());
-        }
-    }
-
-    private void sendReplyToVisitor(Contact contact, ContactReply reply) {
-        try {
-            Map<String, Object> variables = new HashMap<>();
-            variables.put("fullName", contact.getFullName());
-            variables.put("originalMessage", contact.getMessage());
-            variables.put("replyMessage", reply.getMessage());
-            variables.put("repliedBy", reply.getRepliedBy());
-
-            boolean sent = emailService.sendTemplateEmail(
-                    contact.getEmail(),
-                    "Reply to your inquiry - Wafipix",
-                    "contact-reply",
-                    variables
-            );
-
-            if (sent) {
-                log.info("Reply email sent to: {}", contact.getEmail());
-            } else {
-                log.error("Failed to send reply email to: {}", contact.getEmail());
-            }
-        } catch (Exception e) {
-            log.error("Error sending reply email: {}", e.getMessage());
-        }
     }
 }

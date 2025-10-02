@@ -2,6 +2,7 @@ package com.wafipix.wafipix.modules.contact.controller;
 
 import com.wafipix.wafipix.common.dto.ApiResponse;
 import com.wafipix.wafipix.modules.contact.dto.request.ContactFormRequest;
+import com.wafipix.wafipix.modules.contact.dto.response.ContactResponse;
 import com.wafipix.wafipix.modules.contact.dto.response.ContactResponsePublic;
 import com.wafipix.wafipix.modules.contact.service.ContactService;
 import jakarta.validation.Valid;
@@ -24,7 +25,17 @@ public class ContactPublicController {
             @Valid @RequestBody ContactFormRequest request
     ) {
         log.info("Submitting contact form from: {}", request.getEmail());
-        ContactResponsePublic response = contactService.submitPublicContactForm(request);
-        return new ResponseEntity<>(ApiResponse.success(response), HttpStatus.CREATED);
+        ContactResponse response = contactService.submitContactForm(request);
+        
+        // Convert to public response
+        ContactResponsePublic publicResponse = new ContactResponsePublic(
+                response.id(),
+                response.fullName(),
+                response.email(),
+                response.phone(),
+                response.message()
+        );
+        
+        return new ResponseEntity<>(ApiResponse.success(publicResponse), HttpStatus.CREATED);
     }
 }
