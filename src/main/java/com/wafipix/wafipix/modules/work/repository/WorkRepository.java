@@ -44,6 +44,11 @@ public interface WorkRepository extends JpaRepository<Work, UUID> {
            "WHERE w.service.id = :serviceId")
     Page<Work> findAllByServiceId(@Param("serviceId") UUID serviceId, Pageable pageable);
 
+    @Query("SELECT w FROM Work w " +
+           "LEFT JOIN FETCH w.service " +
+           "WHERE w.service.id = :serviceId AND w.active = :active")
+    Page<Work> findAllByServiceIdAndActive(@Param("serviceId") UUID serviceId, @Param("active") Boolean active, Pageable pageable);
+
     boolean existsBySlug(String slug);
 
     boolean existsBySlugAndIdNot(String slug, UUID id);

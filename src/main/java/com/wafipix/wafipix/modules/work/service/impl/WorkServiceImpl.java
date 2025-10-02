@@ -1,6 +1,7 @@
 package com.wafipix.wafipix.modules.work.service.impl;
 
 import com.wafipix.wafipix.common.dto.ApiResponse;
+import com.wafipix.wafipix.common.exception.ResourceNotFoundException;
 import com.wafipix.wafipix.common.util.SlugUtil;
 import com.wafipix.wafipix.modules.filemanagement.entity.File;
 import com.wafipix.wafipix.modules.filemanagement.service.FileService;
@@ -9,6 +10,8 @@ import com.wafipix.wafipix.modules.work.dto.request.CreateWorkRequest;
 import com.wafipix.wafipix.modules.work.dto.request.UpdateWorkRequest;
 import com.wafipix.wafipix.modules.work.dto.response.WorkListResponse;
 import com.wafipix.wafipix.modules.work.dto.response.WorkResponse;
+import com.wafipix.wafipix.modules.work.dto.response.WorkListPublicResponse;
+import com.wafipix.wafipix.modules.work.dto.response.WorkDetailPublicResponse;
 import com.wafipix.wafipix.modules.work.entity.Work;
 import com.wafipix.wafipix.modules.work.mapper.WorkMapper;
 import com.wafipix.wafipix.modules.work.repository.WorkRepository;
@@ -272,5 +275,46 @@ public class WorkServiceImpl implements WorkService {
                 // Continue with deletion even if file cleanup fails
             }
         }
+    }
+
+    // Public API implementations
+    @Override
+    public Page<WorkListPublicResponse> getAllPublicWorks(Pageable pageable) {
+        log.info("Fetching all active works for public display");
+        
+        Page<Work> works = workRepository.findAllByActive(true, pageable);
+        Page<WorkListPublicResponse> response = works.map(workMapper::toPublicListResponse);
+        
+        log.info("Found {} active works for public display", response.getTotalElements());
+        return response;
+    }
+
+    @Override
+    public Page<WorkListPublicResponse> getAllPublicWorksByServiceId(UUID serviceId, Pageable pageable) {
+        log.info("Fetching active works for service ID: {} for public display", serviceId);
+        
+        Page<Work> works = workRepository.findAllByServiceIdAndActive(serviceId, true, pageable);
+        Page<WorkListPublicResponse> response = works.map(workMapper::toPublicListResponse);
+        
+        log.info("Found {} active works for service ID: {} for public display", response.getTotalElements(), serviceId);
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public WorkDetailPublicResponse getPublicWorkBySlug(String slug) {
+        log.info("Fetching work by slug for public display: {}", slug);
+        
+        Work work = workRepository.findBySlugWithFiles(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Active work not found with slug: " + slug));
+        
+        // Check if work is active
+        if (!work.getActive()) {
+            throw new ResourceNotFoundException("Work not found with slug: " + slug);
+        }
+        
+        WorkDetailPublicResponse response = workMapper.toPublicDetailResponse(work);
+        log.info("Found work for public display: {}", work.getTitle());
+        return response;
     }
 }

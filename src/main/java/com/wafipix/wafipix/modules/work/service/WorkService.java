@@ -5,6 +5,8 @@ import com.wafipix.wafipix.modules.work.dto.request.CreateWorkRequest;
 import com.wafipix.wafipix.modules.work.dto.request.UpdateWorkRequest;
 import com.wafipix.wafipix.modules.work.dto.response.WorkListResponse;
 import com.wafipix.wafipix.modules.work.dto.response.WorkResponse;
+import com.wafipix.wafipix.modules.work.dto.response.WorkListPublicResponse;
+import com.wafipix.wafipix.modules.work.dto.response.WorkDetailPublicResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -25,4 +27,9 @@ public interface WorkService {
     ApiResponse<Void> deleteWork(UUID id);
 
     ApiResponse<WorkResponse> updateWorkActivityStatus(UUID id, Boolean active);
+
+    // Public API methods
+    Page<WorkListPublicResponse> getAllPublicWorks(Pageable pageable);
+    Page<WorkListPublicResponse> getAllPublicWorksByServiceId(UUID serviceId, Pageable pageable);
+    WorkDetailPublicResponse getPublicWorkBySlug(String slug);
 }

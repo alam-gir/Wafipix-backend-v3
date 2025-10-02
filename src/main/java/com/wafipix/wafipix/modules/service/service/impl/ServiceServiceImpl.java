@@ -23,6 +23,7 @@ import com.wafipix.wafipix.modules.service.dto.response.ServiceFeaturePublicResp
 import com.wafipix.wafipix.modules.service.dto.response.ServicePageDataResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePackageResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePublicResponse;
+import com.wafipix.wafipix.modules.service.dto.response.ServiceFilterResponse;
 import com.wafipix.wafipix.modules.service.dto.response.SubmenuCategoryResponse;
 import com.wafipix.wafipix.modules.service.dto.response.SubmenuItemResponse;
 import com.wafipix.wafipix.modules.service.entity.Category;
@@ -587,5 +588,21 @@ public class ServiceServiceImpl implements ServiceService {
                 })
                 .filter(category -> !category.items().isEmpty()) // Only include categories with active services
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<ServiceFilterResponse> getPublicServicesForFilter() {
+        log.info("Fetching active services for filtering");
+        
+        List<Service> activeServices = serviceRepository.findActiveServices();
+        List<ServiceFilterResponse> response = activeServices.stream()
+                .map(service -> new ServiceFilterResponse(
+                        service.getId(),
+                        service.getTitle()
+                ))
+                .collect(Collectors.toList());
+        
+        log.info("Found {} active services for filtering", response.size());
+        return response;
     }
 }

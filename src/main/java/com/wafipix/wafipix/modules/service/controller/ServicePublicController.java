@@ -6,6 +6,7 @@ import com.wafipix.wafipix.modules.service.dto.response.CategoryPublicResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePageDataResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePackageResponse;
 import com.wafipix.wafipix.modules.service.dto.response.ServicePublicResponse;
+import com.wafipix.wafipix.modules.service.dto.response.ServiceFilterResponse;
 import com.wafipix.wafipix.modules.service.dto.response.SubmenuCategoryResponse;
 import com.wafipix.wafipix.modules.service.service.ServiceService;
 import lombok.RequiredArgsConstructor;
@@ -66,5 +67,14 @@ public class ServicePublicController {
         List<SubmenuCategoryResponse> navigationData = serviceService.getServicesForNavigation();
         
         return ResponseEntity.ok(ApiResponse.success(navigationData, "Services for navigation retrieved successfully"));
+    }
+    
+    @GetMapping("/filter")
+    public ResponseEntity<ApiResponse<List<ServiceFilterResponse>>> getServicesForFilter() {
+        log.info("Public request for services for filtering");
+        
+        List<ServiceFilterResponse> services = serviceService.getPublicServicesForFilter();
+        
+        return ResponseEntity.ok(ApiResponse.success(services, "Services for filtering retrieved successfully"));
     }
 }
