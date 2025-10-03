@@ -1,26 +1,37 @@
 # ---- Build Stage ----
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+FROM sapmachine:24-jdk-ubuntu-noble AS builder
 
 WORKDIR /app
 
-# Copy source code and pom.xml
-COPY pom.xml .
-COPY src ./src
+# Install Maven
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 
-# Build the JAR file
-RUN mvn clean package -DskipTests
+# Copy pom.xml first to leverage Docker layer caching
+COPY pom.xml .
+
+# Download dependencies (go-offline speeds up subsequent builds)
+RUN mvn dependency:go-offline
+
+# Copy the rest of the source code
+COPY src src
+
+# Build the executable JAR file
+RUN mvn package -DskipTests
 
 # ---- Run Stage ----
-FROM eclipse-temurin:21-jre as run
+FROM sapmachine:24-jre-ubuntu-noble AS runner
 
-WORKDIR /app
+# Define the JAR file name as an argument
+ARG JAR_FILE=target/*.jar
+ENV PORT=8080
+EXPOSE ${PORT}
 
-# Copy only the JAR file from the build stage
-COPY --from=build /app/target/wafipix-0.0.1-SNAPSHOT.jar ./wafipix.jar
+# Create a non-root user for security best practices
+RUN addgroup --system spring && adduser --system spring --ingroup spring
+USER spring
 
-# Optionally copy .env if needed
-COPY .env .env
+# Copy the application JAR from the 'builder' stage
+COPY --from=builder /app/${JAR_FILE} app.jar
 
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "wafipix.jar"]
+# Define the command to run the application
+ENTRYPOINT ["java", "-jar", "/app.jar"]

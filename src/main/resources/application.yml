@@ -2,10 +2,10 @@
     application:
       name: wafipix
     datasource:
-      url: jdbc:postgresql://localhost:5432/wafipix
+      url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wafipix}
       driver-class-name: org.postgresql.Driver
-      username: postgres
-      password: admin
+      username: ${DATABASE_USERNAME:postgres}
+      password: ${DATABASE_PASSWORD:admin}
     jpa:
       properties:
         hibernate:
@@ -22,17 +22,17 @@
         client:
           registration:
             google:
-              client-id: 323341037163-k0e5fa261jg00ak74qsmrooiegd1qunh.apps.googleusercontent.com
-              client-secret: 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
+              client-id: ${GOOGLE_CLIENT_ID:323341037163-k0e5fa261jg00ak74qsmrooiegd1qunh.apps.googleusercontent.com}
+              client-secret: ${GOOGLE_CLIENT_SECRET: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}
               authorization-grant-type: authorization_code
               scope:
                 - profile
                 - email
     mail:
-      host: smtp.gmail.com
-      port: 587
-      username: info.alamgirhussain@gmail.com
-      password: emsw whgk tifz wmrm
+      host: ${MAIL_HOST:smtp.gmail.com}
+      port: ${MAIL_PORT:587}
+      username: ${MAIL_USERNAME:info.alamgirhussain@gmail.com}
+      password: ${MAIL_PASSWORD:emsw whgk tifz wmrm}
       protocol: smtp
       properties:
         mail:
@@ -52,27 +52,27 @@
 
   contact:
     notify:
-      email: info@wafipix.com
+      email: ${CONTACT_NOTIFY_EMAIL:info@wafipix.com}
     admin:
-      url: http://localhost:3000/admin
+      url: ${ADMIN_URL:http://localhost:3000/admin}
 
   jwt:
-    SECRET: Sk9Gxfr8hkSbPx7TXONQJsEff4XXAmWGas5WGq8LMtX5KNXg3CQ4XpdvEIXPXL3j3vPDVsP5NAsNWK+tsjx7lw==
-    ACCESS_TOKEN_EXPIRATION: 864000000
-    REFRESH_TOKEN_EXPIRATION: 864000000
+    SECRET: ${JWT_SECRET:Sk9Gxfr8hkSbPx7TXONQJsEff4XXAmWGas5WGq8LMtX5KNXg3CQ4XpdvEIXPXL3j3vPDVsP5NAsNWK+tsjx7lw==}
+    ACCESS_TOKEN_EXPIRATION: ${JWT_ACCESS_TOKEN_EXPIRATION:864000000}
+    REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION:864000000}
 
   otp:
     expiration-minutes: 10
     rate-limit-per-hour: 5
 
   api:
-    BASE_URL: http://localhost:8080
+    BASE_URL: ${API_BASE_URL:http://localhost:8080}
 
   cloudflare:
     r2:
-      endpoint: https://9cda468137d1fd4eb0b930ade6113b21.r2.cloudflarestorage.com
-      access-key: 9de01edaf9b524ecb903307c466a9e43
-      secret-key: 0f5dcf35afbb8d962ae8b97bc8a705c729d95145517d3540aee29e292f51cc46
-      bucket-name: wafipix
-      region: auto
-      public-url: https://pub-df8554bc8acd468e9312f01236ca95f5.r2.dev
+      endpoint: ${CLOUDFLARE_R2_ENDPOINT:https://9cda468137d1fd4eb0b930ade6113b21.r2.cloudflarestorage.com}
+      access-key: ${CLOUDFLARE_R2_ACCESS_KEY:9de01edaf9b524ecb903307c466a9e43}
+      secret-key: ${CLOUDFLARE_R2_SECRET_KEY:0f5dcf35afbb8d962ae8b97bc8a705c729d95145517d3540aee29e292f51cc46}
+      bucket-name: ${CLOUDFLARE_R2_BUCKET_NAME:wafipix}
+      region: ${CLOUDFLARE_R2_REGION:auto}
+      public-url: ${CLOUDFLARE_R2_PUBLIC_URL:https://pub-df8554bc8acd468e9312f01236ca95f5.r2.dev}

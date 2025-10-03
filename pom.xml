@@ -168,9 +168,9 @@
 						</goals>
 						<configuration>
 							<rules>
-								<enforceBytecodeVersion>
-									<maxJdkVersion>24</maxJdkVersion>
-								</enforceBytecodeVersion>
+								<requireJavaVersion>
+									<version>[24,)</version>
+								</requireJavaVersion>
 							</rules>
 							<fail>true</fail>
 						</configuration>
