@@ -32,7 +32,7 @@ public class EmailServiceImpl implements EmailService {
         this.emailTemplateEngine = emailTemplateEngine;
     }
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.from:${spring.mail.username}}")
     private String fromEmail;
 
     @Override

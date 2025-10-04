@@ -33,6 +33,7 @@
       port: ${MAIL_PORT:587}
       username: ${MAIL_USERNAME:info.alamgirhussain@gmail.com}
       password: ${MAIL_PASSWORD:emsw whgk tifz wmrm}
+      from: ${MAIL_FROM:support@devzity.me} # Sender email
       protocol: smtp
       properties:
         mail:
