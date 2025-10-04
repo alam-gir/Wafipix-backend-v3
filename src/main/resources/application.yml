@@ -48,7 +48,7 @@
             writetimeout: 5000
 
   server:
-    port: 8080
+    port: ${BACKEND_PORT:8080}
 
   contact:
     notify:
@@ -76,3 +76,19 @@
       bucket-name: ${CLOUDFLARE_R2_BUCKET_NAME:wafipix}
       region: ${CLOUDFLARE_R2_REGION:auto}
       public-url: ${CLOUDFLARE_R2_PUBLIC_URL:https://pub-df8554bc8acd468e9312f01236ca95f5.r2.dev}
+
+# Admin Configuration
+  admin:
+    enabled: ${ADMIN_ENABLED:true}
+    users:
+      - email: ${ADMIN_EMAIL_1:info.alamgirhussain@gmail.com}
+        firstName: ${ADMIN_FIRST_NAME_1:Alamgir}
+        lastName: ${ADMIN_LAST_NAME_1:Hussain}
+        phone: ${ADMIN_PHONE_1:}
+        active: ${ADMIN_ACTIVE_1:true}
+      - email: ${ADMIN_EMAIL_2:info@wafipix.com}
+        firstName: ${ADMIN_FIRST_NAME_2:Habibur}
+        lastName: ${ADMIN_LAST_NAME_2:Rahman}
+        phone: ${ADMIN_PHONE_2:}
+        active: ${ADMIN_ACTIVE_2:true}
+

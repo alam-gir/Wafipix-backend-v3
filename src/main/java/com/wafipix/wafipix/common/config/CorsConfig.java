@@ -21,7 +21,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:3001", "https://wafipix.com", "https://www.wafipix.com", "wafipix.com")); // ✅ frontend domain
+        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:3001", "https://wafipix.com", "https://www.wafipix.com", "wafipix.com", "https://panel.wafipix.com", "panel.wafipix.com")); // ✅ frontend domain
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setMaxAge(3600L);
