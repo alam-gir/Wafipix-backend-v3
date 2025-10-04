@@ -25,7 +25,7 @@ public class CreateWorkRequest {
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
-    // File uploads - at least one cover and one profile media required
+    // File uploads - at least one cover media required, profile media optional
     private MultipartFile coverVideo;
     private MultipartFile coverImage;
     private MultipartFile profileVideo;

@@ -210,15 +210,11 @@ public class WorkServiceImpl implements WorkService {
                                         MultipartFile profileVideo, MultipartFile profileImage) {
         boolean hasCover = coverVideo != null && !coverVideo.isEmpty() || 
                           coverImage != null && !coverImage.isEmpty();
-        boolean hasProfile = profileVideo != null && !profileVideo.isEmpty() || 
-                            profileImage != null && !profileImage.isEmpty();
 
         if (!hasCover) {
             throw new RuntimeException("At least one cover media (video or image) is required");
         }
-        if (!hasProfile) {
-            throw new RuntimeException("At least one profile media (video or image) is required");
-        }
+        // Profile media is now optional - no validation needed
     }
 
     private File uploadFileIfPresent(MultipartFile file, String folderPath) {
