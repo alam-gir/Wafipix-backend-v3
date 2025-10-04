@@ -29,10 +29,10 @@
                 - profile
                 - email
     mail:
-      host: ${MAIL_HOST:smtp.gmail.com}
+      host: ${MAIL_HOST:mail.privateemail.com}
       port: ${MAIL_PORT:587}
-      username: ${MAIL_USERNAME:info.alamgirhussain@gmail.com}
-      password: ${MAIL_PASSWORD:emsw whgk tifz wmrm}
+      username: ${MAIL_USERNAME:info@wafipix.com}
+      password: ${MAIL_PASSWORD:Bismillah757696@}
       protocol: smtp
       properties:
         mail:
