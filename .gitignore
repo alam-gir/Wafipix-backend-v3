@@ -43,3 +43,6 @@ target/
 *.jar
 *.war
 *.ear
+
+#files
+./uploads
