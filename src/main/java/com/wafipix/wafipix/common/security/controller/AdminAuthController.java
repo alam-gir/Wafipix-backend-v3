@@ -4,6 +4,7 @@ import com.wafipix.wafipix.common.dto.ApiResponse;
 import com.wafipix.wafipix.common.security.dto.SendOtpRequest;
 import com.wafipix.wafipix.common.security.dto.VerifyOtpRequest;
 import com.wafipix.wafipix.common.security.dto.AdminProfileResponse;
+import com.wafipix.wafipix.common.security.mapper.SecurityMapper;
 import com.wafipix.wafipix.common.security.service.AdminAuthService;
 import com.wafipix.wafipix.modules.user.entity.User;
 import com.wafipix.wafipix.modules.user.repository.UserRepository;
@@ -29,6 +30,7 @@ public class AdminAuthController {
     
     private final AdminAuthService adminAuthService;
     private final UserRepository userRepository;
+    private final SecurityMapper securityMapper;
     
     /**
      * Send OTP code to admin/employee email
@@ -142,19 +144,8 @@ public class AdminAuthController {
                                 .build());
             }
             
-            // Create profile response
-            AdminProfileResponse profileResponse = AdminProfileResponse.builder()
-                    .id(user.getId())
-                    .email(user.getEmail())
-                    .firstName(user.getFirstName())
-                    .lastName(user.getLastName())
-                    .phone(user.getPhone())
-                    .phone(user.getPhone())
-                    .role(user.getRole().name())
-                    .isActive(user.getIsActive())
-                    .createdAt(user.getCreatedAt())
-                    .updatedAt(user.getUpdatedAt())
-                    .build();
+            // Create profile response using mapper
+            AdminProfileResponse profileResponse = securityMapper.toProfileResponse(user);
             
             log.info("Successfully retrieved profile for user: {}", email);
             

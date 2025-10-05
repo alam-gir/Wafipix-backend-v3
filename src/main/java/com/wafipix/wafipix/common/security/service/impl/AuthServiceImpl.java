@@ -3,9 +3,9 @@ package com.wafipix.wafipix.common.security.service.impl;
 import com.wafipix.wafipix.common.exception.AuthenticationException;
 import com.wafipix.wafipix.common.exception.AuthorizationException;
 import com.wafipix.wafipix.common.exception.BusinessException;
-import com.wafipix.wafipix.common.security.dto.response.RefreshTokenResponseDTO;
+import com.wafipix.wafipix.common.security.dto.AdminProfileResponse;
 import com.wafipix.wafipix.common.security.enums.TOKEN_TYPE;
-import com.wafipix.wafipix.common.security.mapper.RefreshTokenMapper;
+import com.wafipix.wafipix.common.security.mapper.SecurityMapper;
 import com.wafipix.wafipix.common.security.repository.RefreshTokenRepository;
 import com.wafipix.wafipix.common.security.service.AuthService;
 import com.wafipix.wafipix.common.security.service.CookieService;
@@ -35,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final CookieService cookieService;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final RefreshTokenMapper refreshTokenMapper;
+    private final SecurityMapper securityMapper;
 
     @Override
     public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response, String deviceId) {
@@ -73,14 +73,11 @@ public class AuthServiceImpl implements AuthService {
             response.addCookie(cookieService.create("at", tokens.get(TOKEN_TYPE.ACCESS_TOKEN)));
             response.addCookie(cookieService.create("rt", tokens.get(TOKEN_TYPE.REFRESH_TOKEN)));
 
-            // Create response DTO
-            RefreshTokenResponseDTO responseDTO = refreshTokenMapper.toRefreshTokenResponseDTO(
-                    tokens.get(TOKEN_TYPE.REFRESH_TOKEN),
-                    tokens.get(TOKEN_TYPE.ACCESS_TOKEN)
-            );
+            // Create profile response (like getProfile)
+            AdminProfileResponse profileResponse = securityMapper.toProfileResponse(user.get());
 
             log.info("Successfully refreshed tokens for user: {} with device: {}", username, deviceId);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+            return new ResponseEntity<>(profileResponse, HttpStatus.OK);
 
         } catch (AuthenticationException e) {
             log.error("Authentication error during token refresh: {}", e.getMessage());

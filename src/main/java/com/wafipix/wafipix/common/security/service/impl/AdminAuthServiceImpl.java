@@ -4,9 +4,10 @@ import com.wafipix.wafipix.common.dto.ApiResponse;
 import com.wafipix.wafipix.common.exception.AuthenticationException;
 import com.wafipix.wafipix.common.exception.AuthorizationException;
 import com.wafipix.wafipix.common.exception.BusinessException;
-import com.wafipix.wafipix.common.security.dto.AdminLoginResponse;
+import com.wafipix.wafipix.common.security.dto.AdminProfileResponse;
 import com.wafipix.wafipix.common.security.dto.SendOtpRequest;
 import com.wafipix.wafipix.common.security.dto.VerifyOtpRequest;
+import com.wafipix.wafipix.common.security.mapper.SecurityMapper;
 import com.wafipix.wafipix.common.security.enums.TOKEN_TYPE;
 import com.wafipix.wafipix.common.security.service.AdminAuthService;
 import com.wafipix.wafipix.common.security.service.CookieService;
@@ -35,6 +36,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     private final UserRepository userRepository;
     private final JWTService jwtService;
     private final CookieService cookieService;
+    private final SecurityMapper securityMapper;
     
     @Override
     @Transactional
@@ -138,18 +140,15 @@ public class AdminAuthServiceImpl implements AdminAuthService {
             response.addCookie(cookieService.create("at", tokens.get(TOKEN_TYPE.ACCESS_TOKEN)));
             response.addCookie(cookieService.create("rt", tokens.get(TOKEN_TYPE.REFRESH_TOKEN)));
             
-            // Create simple response with only tokens (like OAuth2 flow)
-            AdminLoginResponse loginResponse = AdminLoginResponse.builder()
-                    .accessToken(tokens.get(TOKEN_TYPE.ACCESS_TOKEN))
-                    .refreshToken(tokens.get(TOKEN_TYPE.REFRESH_TOKEN))
-                    .build();
+            // Create response with profile information (like getProfile)
+            AdminProfileResponse profileResponse = securityMapper.toProfileResponse(user);
             
             log.info("Successfully logged in admin/employee: {} with device: {}", user.getEmail(), request.getDeviceId());
             
-            ApiResponse<AdminLoginResponse> apiResponse = ApiResponse.<AdminLoginResponse>builder()
+            ApiResponse<AdminProfileResponse> apiResponse = ApiResponse.<AdminProfileResponse>builder()
                     .success(true)
                     .message("Login successful")
-                    .data(loginResponse)
+                    .data(profileResponse)
                     .statusCode(HttpStatus.OK.value())
                     .build();
             
