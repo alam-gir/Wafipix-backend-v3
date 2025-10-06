@@ -14,6 +14,7 @@ public class AppConstants {
         "/v3/admin/auth/verify-otp", // Admin OTP verify endpoint
         "/v3/oauth2/**",
         "/v3/public/**",
+        "/v3/public/uploads/**",  // Explicit path for uploaded files
         // Browser and static resources
         "/favicon.ico",
         "/robots.txt",

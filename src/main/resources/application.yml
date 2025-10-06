@@ -69,14 +69,7 @@
   api:
     BASE_URL: ${API_BASE_URL:http://localhost:8080}
 
-  cloudflare:
-    r2:
-      endpoint: ${CLOUDFLARE_R2_ENDPOINT:https://9cda468137d1fd4eb0b930ade6113b21.r2.cloudflarestorage.com}
-      access-key: ${CLOUDFLARE_R2_ACCESS_KEY:9de01edaf9b524ecb903307c466a9e43}
-      secret-key: ${CLOUDFLARE_R2_SECRET_KEY:0f5dcf35afbb8d962ae8b97bc8a705c729d95145517d3540aee29e292f51cc46}
-      bucket-name: ${CLOUDFLARE_R2_BUCKET_NAME:wafipix}
-      region: ${CLOUDFLARE_R2_REGION:auto}
-      public-url: ${CLOUDFLARE_R2_PUBLIC_URL:https://pub-df8554bc8acd468e9312f01236ca95f5.r2.dev}
+
 
 # Admin Configuration
   admin:
@@ -92,4 +85,21 @@
         lastName: ${ADMIN_LAST_NAME_2:Rahman}
         phone: ${ADMIN_PHONE_2:}
         active: ${ADMIN_ACTIVE_2:true}
+
+# File Storage Configuration
+  file:
+    storage:
+      type: ${FILE_STORAGE_TYPE:local}  # local or cloudflare
+      local:
+        base-path: ${FILE_LOCAL_BASE_PATH:./uploads}
+        public-url: ${FILE_LOCAL_PUBLIC_URL:http://localhost:8080/v3/public/uploads}
+        max-file-size: ${FILE_LOCAL_MAX_SIZE:200MB}
+      cloudflare:
+        r2:
+          endpoint: ${CLOUDFLARE_R2_ENDPOINT:https://9cda468137d1fd4eb0b930ade6113b21.r2.cloudflarestorage.com}
+          access-key: ${CLOUDFLARE_R2_ACCESS_KEY:9de01edaf9b524ecb903307c466a9e43}
+          secret-key: ${CLOUDFLARE_R2_SECRET_KEY:0f5dcf35afbb8d962ae8b97bc8a705c729d95145517d3540aee29e292f51cc46}
+          bucket-name: ${CLOUDFLARE_R2_BUCKET_NAME:wafipix}
+          region: ${CLOUDFLARE_R2_REGION:auto}
+          public-url: ${CLOUDFLARE_R2_PUBLIC_URL:https://pub-df8554bc8acd468e9312f01236ca95f5.r2.dev}
 

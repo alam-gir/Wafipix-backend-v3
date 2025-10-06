@@ -1,0 +1,31 @@
+[33mdc9bc86[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m git ignore updated.
+.gitignore
+[33m40afe16[m added local file storage.
+src/main/java/com/wafipix/wafipix/common/AppConstants.java
+src/main/java/com/wafipix/wafipix/common/exception/GlobalExceptionHandler.java
+src/main/java/com/wafipix/wafipix/modules/filemanagement/config/CloudflareR2Config.java
+src/main/java/com/wafipix/wafipix/modules/filemanagement/config/FileStorageConfig.java
+src/main/java/com/wafipix/wafipix/modules/filemanagement/config/FileStorageConfigExamples.yml
+src/main/java/com/wafipix/wafipix/modules/filemanagement/config/FileStorageServiceFactory.java
+src/main/java/com/wafipix/wafipix/modules/filemanagement/config/StaticFileConfig.java
+src/main/java/com/wafipix/wafipix/modules/filemanagement/service/FileStorageService.java
+src/main/java/com/wafipix/wafipix/modules/filemanagement/service/impl/CloudflareR2ServiceImpl.java
+src/main/java/com/wafipix/wafipix/modules/filemanagement/service/impl/FileServiceImpl.java
+src/main/java/com/wafipix/wafipix/modules/filemanagement/service/impl/LocalFileStorageServiceImpl.java
+src/main/resources/application.yml
+src/test/java/com/wafipix/wafipix/modules/filemanagement/config/FileStorageConfigTest.java
+src/test/resources/application-test.yml
+uploads/advertisement-videos/1759705008357_454147ad.mp4
+uploads/services/icons/1759704749794_a5bb26a2.jpg
+[33mdb9ea2c[m Auth response changed.
+src/main/java/com/wafipix/wafipix/common/security/controller/AdminAuthController.java
+src/main/java/com/wafipix/wafipix/common/security/dto/AdminLoginResponse.java
+src/main/java/com/wafipix/wafipix/common/security/mapper/SecurityMapper.java
+src/main/java/com/wafipix/wafipix/common/security/service/impl/AdminAuthServiceImpl.java
+src/main/java/com/wafipix/wafipix/common/security/service/impl/AuthServiceImpl.java
+[33m6b271eb[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m update in work creation / update - just cover is required and profile is optional.
+src/main/java/com/wafipix/wafipix/modules/work/dto/request/CreateWorkRequest.java
+src/main/java/com/wafipix/wafipix/modules/work/service/impl/WorkServiceImpl.java
+[33m0214098[m updated with form mail environment variable.
+src/main/java/com/wafipix/wafipix/modules/email/service/impl/EmailServiceImpl.java
+src/main/resources/application.yml

@@ -1,0 +1,42 @@
+[33m6b271eb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to 6b27
+[33m40afe16[m HEAD@{1}: reset: moving to 40afe165ad675da02a517bbcb7a5a8422f0dff53
+[33mdc9bc86[m HEAD@{2}: reset: moving to HEAD
+[33mdc9bc86[m HEAD@{3}: commit: git ignore updated.
+[33m40afe16[m HEAD@{4}: commit: added local file storage.
+[33mdb9ea2c[m HEAD@{5}: commit: Auth response changed.
+[33m6b271eb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{6}: commit: update in work creation / update - just cover is required and profile is optional.
+[33m0214098[m HEAD@{7}: commit: updated with form mail environment variable.
+[33mc9bd557[m HEAD@{8}: commit: yml lupdated
+[33m6c1f7f9[m HEAD@{9}: commit: update yml
+[33m466e8bf[m HEAD@{10}: commit: application .yml updated
+[33mf1edecb[m HEAD@{11}: commit: updated connection time out of mail server/
+[33m5b0f375[m HEAD@{12}: commit: updated application.yml with trust
+[33mfe04a0c[m HEAD@{13}: commit: cors updated with panel.wafipix.com domain.
+[33mc7e4344[m HEAD@{14}: Branch: renamed refs/heads/master to refs/heads/main
+[33mc7e4344[m HEAD@{16}: commit: solved pom to create docker image.
+[33m6ad67d6[m HEAD@{17}: commit: added separate response dto for public, for works.
+[33m14fb07d[m HEAD@{18}: commit: added event lister for sending email for - contacts, login otp.
+[33m72b2cc5[m HEAD@{19}: commit: contact public response dto updated.
+[33m982e104[m HEAD@{20}: commit: Review public apis changed response dto.
+[33m914fc22[m HEAD@{21}: commit: all the service details fetched order by creation.
+[33m386569e[m HEAD@{22}: commit: service category packages fetched oldedst first.
+[33mf68ccc9[m HEAD@{23}: commit: solved package feature update.
+[33m85cf983[m HEAD@{24}: commit: Now solved service feautre and faqs update.
+[33m96d6ce2[m HEAD@{25}: commit: service public endpoint added.
+[33mb6d40b1[m HEAD@{26}: commit: added social media public url.
+[33m8ac3cd1[m HEAD@{27}: commit: added trusted client public url.
+[33m8da9966[m HEAD@{28}: commit: authentication setup implemented and tested for admin.
+[33m5200e88[m HEAD@{29}: commit: advertisement video module implemented.
+[33mebee012[m HEAD@{30}: commit: social media module added.
+[33m938fd87[m HEAD@{31}: commit: implemented review module.
+[33m40b2e30[m HEAD@{32}: commit: removed unused method and imports.
+[33me239604[m HEAD@{33}: commit: implemented email serivce. Implemented contact apis.
+[33m820b879[m HEAD@{34}: commit: Atrusted client module implemented. and tested
+[33m049ce59[m HEAD@{35}: commit: work section implemented. tested.
+[33m9d88be4[m HEAD@{36}: commit: service apis implemented and tested.
+[33m306a19a[m HEAD@{37}: commit: Category Module tested.
+[33m1c4ec42[m HEAD@{38}: commit: Authentication : solve to skip AuthenticationEntryPoint running for public endpoints.
+[33mf232d89[m HEAD@{39}: commit: category module implemented but not tested yet.
+[33m8ffad14[m HEAD@{40}: commit: file management added
+[33md0f2e81[m HEAD@{41}: commit: user entity added properly.
+[33m3a349d3[m HEAD@{42}: commit (initial): oauth login is working.

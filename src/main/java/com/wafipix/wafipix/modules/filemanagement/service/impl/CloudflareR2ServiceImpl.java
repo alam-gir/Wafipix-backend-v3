@@ -18,7 +18,7 @@ import java.util.UUID;
  * Implementation of CloudflareR2Service
  * Handles actual file operations with Cloudflare R2 storage
  */
-@Service
+// @Service  // Temporarily disabled - using FileStorageService instead
 @RequiredArgsConstructor
 @Slf4j
 public class CloudflareR2ServiceImpl implements CloudflareR2Service {

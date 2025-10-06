@@ -2,7 +2,7 @@ package com.wafipix.wafipix.modules.filemanagement.service.impl;
 
 import com.wafipix.wafipix.modules.filemanagement.entity.File;
 import com.wafipix.wafipix.modules.filemanagement.repository.FileRepository;
-import com.wafipix.wafipix.modules.filemanagement.service.CloudflareR2Service;
+import com.wafipix.wafipix.modules.filemanagement.service.FileStorageService;
 import com.wafipix.wafipix.modules.filemanagement.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,14 +24,14 @@ import java.util.Optional;
 public class FileServiceImpl implements FileService {
 
     private final FileRepository fileRepository;
-    private final CloudflareR2Service cloudflareR2Service;
+    private final FileStorageService fileStorageService;
 
     @Override
     @Transactional
     public File uploadFile(MultipartFile file, String folderPath, String description) {
         try {
-            // Upload file to Cloudflare R2
-            CloudflareR2Service.UploadResult uploadResult = cloudflareR2Service.uploadFile(file, folderPath);
+            // Upload file to storage (local or cloud)
+            FileStorageService.UploadResult uploadResult = fileStorageService.uploadFile(file, folderPath);
             
             // Create File entity
             File fileEntity = File.builder()
@@ -96,10 +96,10 @@ public class FileServiceImpl implements FileService {
             
             File file = fileOptional.get();
             
-            // Delete from Cloudflare R2
-            boolean deletedFromR2 = cloudflareR2Service.deleteFile(file.getFilePath());
-            if (!deletedFromR2) {
-                log.warn("Failed to delete file from R2: {}", file.getFilePath());
+            // Delete from storage (local or cloud)
+            boolean deletedFromStorage = fileStorageService.deleteFile(file.getFilePath());
+            if (!deletedFromStorage) {
+                log.warn("Failed to delete file from storage: {}", file.getFilePath());
             }
             
             // Delete from database
@@ -126,10 +126,10 @@ public class FileServiceImpl implements FileService {
             
             File file = fileOptional.get();
             
-            // Delete from Cloudflare R2
-            boolean deletedFromR2 = cloudflareR2Service.deleteFile(filePath);
-            if (!deletedFromR2) {
-                log.warn("Failed to delete file from R2: {}", filePath);
+            // Delete from storage (local or cloud)
+            boolean deletedFromStorage = fileStorageService.deleteFile(filePath);
+            if (!deletedFromStorage) {
+                log.warn("Failed to delete file from storage: {}", filePath);
             }
             
             // Delete from database
