@@ -14,7 +14,7 @@ public class CookieServiceImpl implements CookieService {
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
         cookie.setPath("/");
-        cookie.setDomain(".wafipix.com");
+        cookie.setDomain("wafipix.com");
         return cookie;
     }
 }
